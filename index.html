@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bazira - Kurdistan Marketplace</title>
+<meta name="description" content="Buy and sell cars, phones, electronics in Kurdistan & Iraq">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #060E1C; color: #F5F2EB; font-family: 'Segoe UI', sans-serif; }
+  .app { max-width: 480px; margin: 0 auto; min-height: 100vh; position: relative; }
+
+  /* Header */
+  .header { background: #0A1628; padding: 14px 16px; border-bottom: 1px solid rgba(201,168,76,0.15); position: sticky; top: 0; z-index: 100; }
+  .header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .logo { display: flex; align-items: center; gap: 10px; }
+  .logo-box { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, #C9A84C, #E4C46B); display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 900; color: #060E1C; }
+  .logo-text { font-size: 18px; font-weight: 900; letter-spacing: -0.5px; }
+  .logo-text span { color: #C9A84C; }
+  .logo-sub { font-size: 8px; letter-spacing: 2px; color: #8B7235; font-weight: 700; }
+  .header-btns { display: flex; align-items: center; gap: 8px; }
+  .btn-lang { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 5px 10px; color: #F5F2EB; font-size: 12px; font-weight: 700; cursor: pointer; }
+  .btn-login { background: linear-gradient(135deg, #C9A84C, #E4C46B); border: none; border-radius: 8px; padding: 6px 14px; color: #060E1C; font-size: 12px; font-weight: 800; cursor: pointer; }
+  .search-bar { display: flex; align-items: center; background: rgba(255,255,255,0.06); border: 1px solid rgba(201,168,76,0.2); border-radius: 12px; padding: 10px 14px; gap: 10px; }
+  .search-bar input { flex: 1; background: none; border: none; outline: none; color: #F5F2EB; font-size: 13px; }
+  .search-bar input::placeholder { color: #9BA4B5; }
+
+  /* Hero */
+  .hero { background: linear-gradient(160deg, #0E2040 0%, #0A1628 100%); padding: 24px 20px; }
+  .hero-tag { color: #8B7235; font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+  .hero-title { font-size: 28px; font-weight: 900; line-height: 1.2; margin-bottom: 8px; }
+  .hero-sub { color: #9BA4B5; font-size: 13px; margin-bottom: 18px; }
+  .hero-stats { display: flex; gap: 24px; }
+  .stat-val { color: #C9A84C; font-size: 18px; font-weight: 900; }
+  .stat-lbl { color: #9BA4B5; font-size: 11px; }
+
+  /* Categories */
+  .section { padding: 20px 16px 0; }
+  .section-title { color: #F5F2EB; font-weight: 800; font-size: 15px; margin-bottom: 14px; }
+  .cat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 4px; }
+  .cat-item { background: linear-gradient(135deg, var(--bg), var(--bg2)); border-radius: 14px; padding: 14px 8px; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; transition: transform 0.2s; border: 1px solid rgba(255,255,255,0.06); }
+  .cat-item:hover { transform: translateY(-2px); }
+  .cat-icon { font-size: 26px; }
+  .cat-label { color: #F5F2EB; font-size: 9px; font-weight: 700; text-align: center; }
+
+  /* Listings */
+  .listings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 16px; padding-bottom: 100px; }
+  .card { background: linear-gradient(145deg, #0E2040, #0A1628); border: 1px solid rgba(201,168,76,0.15); border-radius: 16px; overflow: hidden; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+  .card:hover { transform: translateY(-3px); box-shadow: 0 16px 40px rgba(0,0,0,0.5); }
+  .card-img { height: 140px; background: linear-gradient(135deg, #0a1628, #162B52); display: flex; align-items: center; justify-content: center; font-size: 60px; position: relative; }
+  .badge-featured { position: absolute; top: 10px; left: 10px; background: linear-gradient(90deg, #C9A84C, #E4C46B); color: #060E1C; font-size: 9px; font-weight: 800; padding: 3px 8px; border-radius: 20px; letter-spacing: 1px; }
+  .badge-verified { position: absolute; top: 10px; right: 10px; background: rgba(61,184,122,0.2); border: 1px solid #3DB87A; color: #3DB87A; font-size: 9px; font-weight: 700; padding: 3px 8px; border-radius: 20px; }
+  .card-body { padding: 12px; }
+  .card-title { color: #F5F2EB; font-size: 12px; font-weight: 700; margin-bottom: 4px; line-height: 1.3; }
+  .card-price { color: #C9A84C; font-size: 16px; font-weight: 900; margin-bottom: 8px; }
+  .card-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
+  .tag { background: rgba(255,255,255,0.06); color: #9BA4B5; font-size: 10px; padding: 2px 8px; border-radius: 20px; }
+  .tag.new { background: rgba(61,184,122,0.1); color: #3DB87A; }
+  .tag.damaged { background: rgba(201,76,76,0.1); color: #C94C4C; }
+  .card-city { color: #9BA4B5; font-size: 11px; }
+
+  /* Bottom nav */
+  .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: linear-gradient(0deg, #060E1C 80%, transparent); padding: 12px 16px 20px; z-index: 200; }
+  .nav-inner { background: #0A1628; border: 1px solid rgba(201,168,76,0.15); border-radius: 20px; padding: 10px 16px; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 -4px 24px rgba(0,0,0,0.6); }
+  .nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; padding: 4px 8px; background: none; border: none; }
+  .nav-item.active .nav-icon { color: #C9A84C; }
+  .nav-item.active .nav-label { color: #C9A84C; }
+  .nav-icon { font-size: 20px; }
+  .nav-label { font-size: 9px; color: #9BA4B5; font-weight: 600; }
+  .nav-post { background: linear-gradient(135deg, #C9A84C, #E4C46B); border-radius: 14px; padding: 8px 14px; border: none; cursor: pointer; box-shadow: 0 4px 16px rgba(201,168,76,0.4); }
+  .nav-post .nav-icon { font-size: 22px; color: #060E1C; }
+
+  /* Featured scroll */
+  .featured-scroll { display: flex; gap: 14px; overflow-x: auto; padding: 0 16px 8px; scrollbar-width: none; }
+  .featured-scroll::-webkit-scrollbar { display: none; }
+  .featured-scroll .card { min-width: 200px; flex-shrink: 0; }
+  .section-header { display: flex; justify-content: space-between; align-items: center; padding: 0 16px; margin-bottom: 12px; }
+  .view-all { color: #C9A84C; font-size: 12px; font-weight: 700; background: none; border: none; cursor: pointer; }
+
+  /* Pills */
+  .pills { display: flex; gap: 8px; overflow-x: auto; padding: 12px 16px 4px; scrollbar-width: none; }
+  .pills::-webkit-scrollbar { display: none; }
+  .pill { flex-shrink: 0; padding: 8px 14px; border-radius: 24px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); color: #9BA4B5; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+  .pill.active { background: linear-gradient(135deg, #C9A84C, #E4C46B); border-color: transparent; color: #060E1C; }
+
+  /* Coming soon banner */
+  .coming-soon { margin: 20px 16px; background: linear-gradient(135deg, #0E2040, #162B52); border: 1px solid rgba(201,168,76,0.3); border-radius: 16px; padding: 20px; text-align: center; }
+  .coming-soon h3 { color: #C9A84C; font-size: 16px; margin-bottom: 6px; }
+  .coming-soon p { color: #9BA4B5; font-size: 13px; }
+  .app-badges { display: flex; gap: 10px; justify-content: center; margin-top: 14px; }
+  .app-badge { background: #1a1f2e; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 8px 16px; color: #F5F2EB; font-size: 12px; font-weight: 700; cursor: pointer; }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-row">
+      <div class="logo">
+        <div class="logo-box">B</div>
+        <div>
+          <div class="logo-text">BAZIRA<span>.</span></div>
+          <div class="logo-sub">MARKETPLACE</div>
+        </div>
+      </div>
+      <div class="header-btns">
+        <button class="btn-lang" onclick="cycleLang()">EN ›</button>
+        <button class="btn-login">Login</button>
+        <span style="font-size:22px;cursor:pointer">🔔</span>
+      </div>
+    </div>
+    <div class="search-bar">
+      <span>🔍</span>
+      <input type="text" placeholder="Search cars, phones, electronics..." id="searchInput" oninput="filterListings()">
+    </div>
+  </div>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-tag">KURDISTAN'S PREMIER MARKETPLACE</div>
+    <h1 class="hero-title">Find Everything,<br>Sell Anything 🛍️</h1>
+    <p class="hero-sub">Trusted marketplace for Kurdistan & Iraq</p>
+    <div class="hero-stats">
+      <div><div class="stat-val">50K+</div><div class="stat-lbl">listings</div></div>
+      <div><div class="stat-val">6</div><div class="stat-lbl">cities</div></div>
+      <div><div class="stat-val">12K+</div><div class="stat-lbl">sellers</div></div>
+    </div>
+  </div>
+
+  <!-- Category pills -->
+  <div class="pills">
+    <div class="pill active" onclick="filterCat('all',this)">All</div>
+    <div class="pill" onclick="filterCat('cars',this)">🚗 Cars</div>
+    <div class="pill" onclick="filterCat('phones',this)">📱 Phones</div>
+    <div class="pill" onclick="filterCat('electronics',this)">💻 Electronics</div>
+    <div class="pill" onclick="filterCat('realEstate',this)">🏠 Real Estate</div>
+    <div class="pill" onclick="filterCat('motorcycles',this)">🏍️ Motorcycles</div>
+    <div class="pill" onclick="filterCat('spareParts',this)">⚙️ Spare Parts</div>
+  </div>
+
+  <!-- Category grid -->
+  <div class="section">
+    <div class="cat-grid">
+      <div class="cat-item" style="--bg:#1e3a5f;--bg2:#162B52" onclick="filterCat('cars',null)"><span class="cat-icon">🚗</span><span class="cat-label">Cars</span></div>
+      <div class="cat-item" style="--bg:#1a4a3a;--bg2:#0d2e1e" onclick="filterCat('phones',null)"><span class="cat-icon">📱</span><span class="cat-label">Phones</span></div>
+      <div class="cat-item" style="--bg:#3a1e5f;--bg2:#2a1245" onclick="filterCat('electronics',null)"><span class="cat-icon">💻</span><span class="cat-label">Electronics</span></div>
+      <div class="cat-item" style="--bg:#5f3a1e;--bg2:#3d2410" onclick="filterCat('fashion',null)"><span class="cat-icon">👔</span><span class="cat-label">Fashion</span></div>
+      <div class="cat-item" style="--bg:#1e5f3a;--bg2:#0d3d22" onclick="filterCat('realEstate',null)"><span class="cat-icon">🏠</span><span class="cat-label">Real Estate</span></div>
+      <div class="cat-item" style="--bg:#5f1e2e;--bg2:#3d1018" onclick="filterCat('motorcycles',null)"><span class="cat-icon">🏍️</span><span class="cat-label">Motorcycles</span></div>
+      <div class="cat-item" style="--bg:#2e3a1e;--bg2:#1c2610" onclick="filterCat('spareParts',null)"><span class="cat-icon">⚙️</span><span class="cat-label">Spare Parts</span></div>
+      <div class="cat-item" style="--bg:#1e2e3a;--bg2:#101e26" onclick="filterCat('all',null)"><span class="cat-icon">☰</span><span class="cat-label">All</span></div>
+    </div>
+  </div>
+
+  <!-- Featured -->
+  <div style="padding-top:20px">
+    <div class="section-header">
+      <span class="section-title">⭐ Featured</span>
+      <button class="view-all">View All</button>
+    </div>
+    <div class="featured-scroll" id="featuredGrid"></div>
+  </div>
+
+  <!-- Latest -->
+  <div style="padding-top:20px">
+    <div class="section-header">
+      <span class="section-title">🕐 Latest Listings</span>
+      <span style="color:#9BA4B5;font-size:12px" id="resultCount"></span>
+    </div>
+    <div class="listings-grid" id="listingsGrid"></div>
+  </div>
+
+  <!-- Coming soon -->
+  <div class="coming-soon">
+    <h3>📱 Download the App</h3>
+    <p>Get the full Bazira experience on your phone</p>
+    <div class="app-badges">
+      <div class="app-badge">🍎 App Store</div>
+      <div class="app-badge">🤖 Google Play</div>
+    </div>
+  </div>
+
+  <!-- Bottom nav -->
+  <div class="bottom-nav">
+    <div class="nav-inner">
+      <button class="nav-item active" onclick="setTab('home',this)"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></button>
+      <button class="nav-item" onclick="setTab('search',this)"><span class="nav-icon">🔍</span><span class="nav-label">Search</span></button>
+      <button class="nav-post"><span class="nav-icon">+</span></button>
+      <button class="nav-item" onclick="setTab('saved',this)"><span class="nav-icon">🤍</span><span class="nav-label">Saved</span></button>
+      <button class="nav-item" onclick="setTab('profile',this)"><span class="nav-icon">👤</span><span class="nav-label">Profile</span></button>
+    </div>
+  </div>
+</div>
+
+<script>
+const LISTINGS = [
+  {id:1,cat:'cars',title:'Toyota Land Cruiser GXR 2022',price:85000000,city:'Erbil',year:2022,mileage:18000,condition:'used',featured:true,verified:true,emoji:'🚙'},
+  {id:2,cat:'cars',title:'BMW 5 Series 2021',price:62000000,city:'Sulaymaniyah',year:2021,mileage:32000,condition:'used',featured:true,verified:true,emoji:'🚗'},
+  {id:3,cat:'phones',title:'iPhone 15 Pro Max 256GB',price:2800000,city:'Erbil',condition:'new',featured:true,verified:false,emoji:'📱'},
+  {id:4,cat:'realEstate',title:'Villa 450m² in Erbil',price:450000000,city:'Erbil',condition:'new',featured:false,verified:true,emoji:'🏠'},
+  {id:5,cat:'cars',title:'Mercedes C300 2023',price:75000000,city:'Duhok',year:2023,mileage:5000,condition:'used',featured:false,verified:true,emoji:'🚘'},
+  {id:6,cat:'phones',title:'Samsung Galaxy S24 Ultra',price:2200000,city:'Sulaymaniyah',condition:'new',featured:false,verified:false,emoji:'📲'},
+  {id:7,cat:'electronics',title:'LG 65" OLED TV 4K',price:3500000,city:'Kirkuk',condition:'new',featured:false,verified:false,emoji:'📺'},
+  {id:8,cat:'motorcycles',title:'Yamaha MT-07 2022',price:18000000,city:'Erbil',year:2022,mileage:8000,condition:'used',featured:false,verified:true,emoji:'🏍️'},
+  {id:9,cat:'phones',title:'iPhone 14 Pro — Cracked Screen',price:850000,city:'Erbil',condition:'damaged',featured:false,verified:false,emoji:'📱'},
+  {id:10,cat:'cars',title:'Toyota Corolla 2019 — Accident',price:12000000,city:'Duhok',year:2019,mileage:55000,condition:'damaged',featured:false,verified:false,emoji:'🚗'},
+];
+
+let currentCat = 'all';
+let currentSearch = '';
+
+function fmtPrice(p) {
+  if(p>=1000000) return (p/1000000).toFixed(1)+'M IQD';
+  if(p>=1000) return (p/1000).toFixed(0)+'K IQD';
+  return p+' IQD';
+}
+
+function condTag(c) {
+  if(c==='new') return '<span class="tag new">New</span>';
+  if(c==='damaged') return '<span class="tag damaged">Damaged</span>';
+  return '<span class="tag">Used</span>';
+}
+
+function cardHTML(item) {
+  return `<div class="card" onclick="alert('${item.title}\\n${fmtPrice(item.price)}\\n📍 ${item.city}')">
+    <div class="card-img">
+      ${item.featured?'<span class="badge-featured">FEATURED</span>':''}
+      ${item.verified?'<span class="badge-verified">✓ Verified</span>':''}
+      <span>${item.emoji}</span>
+    </div>
+    <div class="card-body">
+      <div class="card-title">${item.title}</div>
+      <div class="card-price">${fmtPrice(item.price)}</div>
+      <div class="card-tags">
+        ${item.year?`<span class="tag">${item.year}</span>`:''}
+        ${item.mileage?`<span class="tag">${item.mileage.toLocaleString()} km</span>`:''}
+        ${condTag(item.condition)}
+      </div>
+      <div class="card-city">📍 ${item.city}</div>
+    </div>
+  </div>`;
+}
+
+function render() {
+  const filtered = LISTINGS.filter(l => {
+    const mCat = currentCat==='all' || l.cat===currentCat;
+    const mQ = !currentSearch || l.title.toLowerCase().includes(currentSearch.toLowerCase());
+    return mCat && mQ;
+  });
+  const featured = filtered.filter(l=>l.featured);
+  const latest = filtered.filter(l=>!l.featured);
+  document.getElementById('featuredGrid').innerHTML = featured.map(cardHTML).join('');
+  document.getElementById('listingsGrid').innerHTML = (latest.length?latest:filtered).map(cardHTML).join('');
+  document.getElementById('resultCount').textContent = filtered.length + ' listings';
+}
+
+function filterCat(cat, el) {
+  currentCat = cat;
+  document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
+  if(el) el.classList.add('active');
+  render();
+}
+
+function filterListings() {
+  currentSearch = document.getElementById('searchInput').value;
+  render();
+}
+
+function setTab(tab, el) {
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(el) el.classList.add('active');
+}
+
+const langs = ['EN','كو','عر'];
+let langIdx = 0;
+function cycleLang() {
+  langIdx = (langIdx+1)%langs.length;
+  document.querySelector('.btn-lang').textContent = langs[langIdx]+' ›';
+}
+
+render();
+</script>
+</body>
+</html>
