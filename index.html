@@ -4,159 +4,353 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bazira - Kurdistan Marketplace</title>
-<meta name="description" content="Buy and sell cars, phones, electronics in Kurdistan & Iraq">
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { background: #060E1C; color: #F5F2EB; font-family: 'Segoe UI', sans-serif; }
-  .app { max-width: 480px; margin: 0 auto; min-height: 100vh; position: relative; }
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#060E1C;color:#F5F2EB;font-family:'Segoe UI',sans-serif;overflow-x:hidden;}
+.app{max-width:480px;margin:0 auto;min-height:100vh;position:relative;}
 
-  /* Header */
-  .header { background: #0A1628; padding: 14px 16px; border-bottom: 1px solid rgba(201,168,76,0.15); position: sticky; top: 0; z-index: 100; }
-  .header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-  .logo { display: flex; align-items: center; gap: 10px; }
-  .logo-box { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, #C9A84C, #E4C46B); display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 900; color: #060E1C; }
-  .logo-text { font-size: 18px; font-weight: 900; letter-spacing: -0.5px; }
-  .logo-text span { color: #C9A84C; }
-  .logo-sub { font-size: 8px; letter-spacing: 2px; color: #8B7235; font-weight: 700; }
-  .header-btns { display: flex; align-items: center; gap: 8px; }
-  .btn-lang { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 5px 10px; color: #F5F2EB; font-size: 12px; font-weight: 700; cursor: pointer; }
-  .btn-login { background: linear-gradient(135deg, #C9A84C, #E4C46B); border: none; border-radius: 8px; padding: 6px 14px; color: #060E1C; font-size: 12px; font-weight: 800; cursor: pointer; }
-  .search-bar { display: flex; align-items: center; background: rgba(255,255,255,0.06); border: 1px solid rgba(201,168,76,0.2); border-radius: 12px; padding: 10px 14px; gap: 10px; }
-  .search-bar input { flex: 1; background: none; border: none; outline: none; color: #F5F2EB; font-size: 13px; }
-  .search-bar input::placeholder { color: #9BA4B5; }
+/* OVERLAY / MODAL */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;align-items:flex-end;justify-content:center;}
+.overlay.show{display:flex;}
+.modal{background:#0E2040;border-radius:24px 24px 0 0;padding:28px 24px 40px;width:100%;max-width:480px;border-top:1px solid rgba(201,168,76,0.2);animation:slideUp 0.3s ease;}
+@keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+.modal-title{font-size:22px;font-weight:900;color:#F5F2EB;margin-bottom:6px;}
+.modal-sub{color:#9BA4B5;font-size:13px;margin-bottom:24px;}
+.modal input{width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:13px 16px;color:#F5F2EB;font-size:14px;outline:none;margin-bottom:12px;}
+.modal input:focus{border-color:#C9A84C;}
+.btn-gold{width:100%;background:linear-gradient(135deg,#C9A84C,#E4C46B);border:none;border-radius:12px;padding:14px;color:#060E1C;font-size:16px;font-weight:800;cursor:pointer;margin-bottom:10px;}
+.btn-outline{width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:14px;color:#F5F2EB;font-size:15px;font-weight:700;cursor:pointer;}
+.modal-close{position:absolute;top:16px;right:20px;background:rgba(255,255,255,0.08);border:none;border-radius:50%;width:32px;height:32px;color:#9BA4B5;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.modal-switch{text-align:center;color:#9BA4B5;font-size:13px;margin-top:14px;}
+.modal-switch span{color:#C9A84C;cursor:pointer;font-weight:700;}
+.modal-wrap{position:relative;}
 
-  /* Hero */
-  .hero { background: linear-gradient(160deg, #0E2040 0%, #0A1628 100%); padding: 24px 20px; }
-  .hero-tag { color: #8B7235; font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
-  .hero-title { font-size: 28px; font-weight: 900; line-height: 1.2; margin-bottom: 8px; }
-  .hero-sub { color: #9BA4B5; font-size: 13px; margin-bottom: 18px; }
-  .hero-stats { display: flex; gap: 24px; }
-  .stat-val { color: #C9A84C; font-size: 18px; font-weight: 900; }
-  .stat-lbl { color: #9BA4B5; font-size: 11px; }
+/* HEADER */
+.header{background:#0A1628;padding:14px 16px;border-bottom:1px solid rgba(201,168,76,0.15);position:sticky;top:0;z-index:200;}
+.header-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.logo{display:flex;align-items:center;gap:10px;cursor:pointer;}
+.logo-box{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#C9A84C,#E4C46B);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#060E1C;}
+.logo-name{font-size:18px;font-weight:900;letter-spacing:-0.5px;}
+.logo-name span{color:#C9A84C;}
+.logo-sub{font-size:8px;letter-spacing:2px;color:#8B7235;font-weight:700;}
+.header-btns{display:flex;align-items:center;gap:8px;}
+.btn-lang{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:5px 10px;color:#F5F2EB;font-size:12px;font-weight:700;cursor:pointer;position:relative;}
+.btn-login-hdr{background:linear-gradient(135deg,#C9A84C,#E4C46B);border:none;border-radius:8px;padding:6px 14px;color:#060E1C;font-size:12px;font-weight:800;cursor:pointer;}
+.btn-avatar{background:rgba(201,168,76,0.15);border:1px solid #C9A84C;border-radius:8px;padding:5px 12px;color:#C9A84C;font-size:12px;font-weight:800;cursor:pointer;}
+.bell-btn{background:none;border:none;cursor:pointer;font-size:22px;position:relative;}
+.bell-dot{position:absolute;top:0;right:0;width:8px;height:8px;background:#C9A84C;border-radius:50%;border:2px solid #0A1628;}
 
-  /* Categories */
-  .section { padding: 20px 16px 0; }
-  .section-title { color: #F5F2EB; font-weight: 800; font-size: 15px; margin-bottom: 14px; }
-  .cat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 4px; }
-  .cat-item { background: linear-gradient(135deg, var(--bg), var(--bg2)); border-radius: 14px; padding: 14px 8px; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; transition: transform 0.2s; border: 1px solid rgba(255,255,255,0.06); }
-  .cat-item:hover { transform: translateY(-2px); }
-  .cat-icon { font-size: 26px; }
-  .cat-label { color: #F5F2EB; font-size: 9px; font-weight: 700; text-align: center; }
+/* SEARCH */
+.search-bar{display:flex;align-items:center;background:rgba(255,255,255,0.06);border:1px solid rgba(201,168,76,0.2);border-radius:12px;padding:10px 14px;gap:10px;}
+.search-bar input{flex:1;background:none;border:none;outline:none;color:#F5F2EB;font-size:13px;}
+.search-bar input::placeholder{color:#9BA4B5;}
 
-  /* Listings */
-  .listings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 16px; padding-bottom: 100px; }
-  .card { background: linear-gradient(145deg, #0E2040, #0A1628); border: 1px solid rgba(201,168,76,0.15); border-radius: 16px; overflow: hidden; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
-  .card:hover { transform: translateY(-3px); box-shadow: 0 16px 40px rgba(0,0,0,0.5); }
-  .card-img { height: 140px; background: linear-gradient(135deg, #0a1628, #162B52); display: flex; align-items: center; justify-content: center; font-size: 60px; position: relative; }
-  .badge-featured { position: absolute; top: 10px; left: 10px; background: linear-gradient(90deg, #C9A84C, #E4C46B); color: #060E1C; font-size: 9px; font-weight: 800; padding: 3px 8px; border-radius: 20px; letter-spacing: 1px; }
-  .badge-verified { position: absolute; top: 10px; right: 10px; background: rgba(61,184,122,0.2); border: 1px solid #3DB87A; color: #3DB87A; font-size: 9px; font-weight: 700; padding: 3px 8px; border-radius: 20px; }
-  .card-body { padding: 12px; }
-  .card-title { color: #F5F2EB; font-size: 12px; font-weight: 700; margin-bottom: 4px; line-height: 1.3; }
-  .card-price { color: #C9A84C; font-size: 16px; font-weight: 900; margin-bottom: 8px; }
-  .card-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
-  .tag { background: rgba(255,255,255,0.06); color: #9BA4B5; font-size: 10px; padding: 2px 8px; border-radius: 20px; }
-  .tag.new { background: rgba(61,184,122,0.1); color: #3DB87A; }
-  .tag.damaged { background: rgba(201,76,76,0.1); color: #C94C4C; }
-  .card-city { color: #9BA4B5; font-size: 11px; }
+/* LANG MENU */
+.lang-menu{display:none;position:absolute;top:calc(100% + 6px);right:0;background:#0E2040;border:1px solid rgba(201,168,76,0.2);border-radius:12px;overflow:hidden;z-index:300;min-width:160px;box-shadow:0 8px 32px rgba(0,0,0,0.5);}
+.lang-menu.show{display:block;}
+.lang-opt{padding:12px 16px;cursor:pointer;color:#F5F2EB;font-size:14px;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;justify-content:space-between;align-items:center;}
+.lang-opt:hover{background:rgba(201,168,76,0.1);}
+.lang-opt.active{color:#C9A84C;font-weight:700;}
 
-  /* Bottom nav */
-  .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: linear-gradient(0deg, #060E1C 80%, transparent); padding: 12px 16px 20px; z-index: 200; }
-  .nav-inner { background: #0A1628; border: 1px solid rgba(201,168,76,0.15); border-radius: 20px; padding: 10px 16px; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 -4px 24px rgba(0,0,0,0.6); }
-  .nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; padding: 4px 8px; background: none; border: none; }
-  .nav-item.active .nav-icon { color: #C9A84C; }
-  .nav-item.active .nav-label { color: #C9A84C; }
-  .nav-icon { font-size: 20px; }
-  .nav-label { font-size: 9px; color: #9BA4B5; font-weight: 600; }
-  .nav-post { background: linear-gradient(135deg, #C9A84C, #E4C46B); border-radius: 14px; padding: 8px 14px; border: none; cursor: pointer; box-shadow: 0 4px 16px rgba(201,168,76,0.4); }
-  .nav-post .nav-icon { font-size: 22px; color: #060E1C; }
+/* NOTIF PANEL */
+.notif-panel{display:none;position:fixed;top:0;right:0;width:100%;max-width:480px;height:100vh;background:#0A1628;z-index:400;overflow-y:auto;transform:translateX(100%);transition:transform 0.3s ease;}
+.notif-panel.show{display:block;transform:translateX(0);}
+.notif-header{background:#0E2040;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(201,168,76,0.1);position:sticky;top:0;}
+.notif-item{padding:14px 20px;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;gap:12px;align-items:flex-start;}
+.notif-item.unread{background:rgba(201,168,76,0.05);}
+.notif-icon{font-size:24px;flex-shrink:0;}
+.notif-body{}
+.notif-title{color:#F5F2EB;font-size:13px;font-weight:700;margin-bottom:3px;}
+.notif-desc{color:#9BA4B5;font-size:12px;line-height:1.4;}
+.notif-time{color:#9BA4B5;font-size:11px;margin-top:4px;}
+.notif-dot{width:8px;height:8px;background:#C9A84C;border-radius:50%;flex-shrink:0;margin-top:4px;}
 
-  /* Featured scroll */
-  .featured-scroll { display: flex; gap: 14px; overflow-x: auto; padding: 0 16px 8px; scrollbar-width: none; }
-  .featured-scroll::-webkit-scrollbar { display: none; }
-  .featured-scroll .card { min-width: 200px; flex-shrink: 0; }
-  .section-header { display: flex; justify-content: space-between; align-items: center; padding: 0 16px; margin-bottom: 12px; }
-  .view-all { color: #C9A84C; font-size: 12px; font-weight: 700; background: none; border: none; cursor: pointer; }
+/* HERO */
+.hero{background:linear-gradient(160deg,#0E2040 0%,#0A1628 100%);padding:24px 20px;}
+.hero-tag{color:#8B7235;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
+.hero-title{font-size:28px;font-weight:900;line-height:1.2;margin-bottom:8px;}
+.hero-sub{color:#9BA4B5;font-size:13px;margin-bottom:18px;}
+.hero-stats{display:flex;gap:24px;}
+.stat-val{color:#C9A84C;font-size:18px;font-weight:900;}
+.stat-lbl{color:#9BA4B5;font-size:11px;}
 
-  /* Pills */
-  .pills { display: flex; gap: 8px; overflow-x: auto; padding: 12px 16px 4px; scrollbar-width: none; }
-  .pills::-webkit-scrollbar { display: none; }
-  .pill { flex-shrink: 0; padding: 8px 14px; border-radius: 24px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); color: #9BA4B5; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; }
-  .pill.active { background: linear-gradient(135deg, #C9A84C, #E4C46B); border-color: transparent; color: #060E1C; }
+/* PILLS */
+.pills{display:flex;gap:8px;overflow-x:auto;padding:12px 16px 4px;scrollbar-width:none;}
+.pills::-webkit-scrollbar{display:none;}
+.pill{flex-shrink:0;padding:8px 14px;border-radius:24px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);color:#9BA4B5;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;}
+.pill.active{background:linear-gradient(135deg,#C9A84C,#E4C46B);border-color:transparent;color:#060E1C;}
 
-  /* Coming soon banner */
-  .coming-soon { margin: 20px 16px; background: linear-gradient(135deg, #0E2040, #162B52); border: 1px solid rgba(201,168,76,0.3); border-radius: 16px; padding: 20px; text-align: center; }
-  .coming-soon h3 { color: #C9A84C; font-size: 16px; margin-bottom: 6px; }
-  .coming-soon p { color: #9BA4B5; font-size: 13px; }
-  .app-badges { display: flex; gap: 10px; justify-content: center; margin-top: 14px; }
-  .app-badge { background: #1a1f2e; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 8px 16px; color: #F5F2EB; font-size: 12px; font-weight: 700; cursor: pointer; }
+/* CAT GRID */
+.cat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:16px;}
+.cat-item{border-radius:14px;padding:14px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;transition:transform 0.2s;border:1px solid rgba(255,255,255,0.06);}
+.cat-item:hover{transform:translateY(-2px);}
+.cat-icon{font-size:26px;}
+.cat-label{color:#F5F2EB;font-size:9px;font-weight:700;text-align:center;}
+
+/* CARDS */
+.section-header{display:flex;justify-content:space-between;align-items:center;padding:0 16px;margin-bottom:12px;}
+.section-title{color:#F5F2EB;font-weight:800;font-size:15px;}
+.view-all{color:#C9A84C;font-size:12px;font-weight:700;background:none;border:none;cursor:pointer;}
+.featured-scroll{display:flex;gap:14px;overflow-x:auto;padding:0 16px 8px;scrollbar-width:none;}
+.featured-scroll::-webkit-scrollbar{display:none;}
+.listings-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:16px;padding-bottom:100px;}
+.card{background:linear-gradient(145deg,#0E2040,#0A1628);border:1px solid rgba(201,168,76,0.15);border-radius:16px;overflow:hidden;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;}
+.card:hover{transform:translateY(-3px);box-shadow:0 16px 40px rgba(0,0,0,0.5);}
+.card-img{height:140px;background:linear-gradient(135deg,#0a1628,#162B52);display:flex;align-items:center;justify-content:center;font-size:60px;position:relative;}
+.badge-featured{position:absolute;top:10px;left:10px;background:linear-gradient(90deg,#C9A84C,#E4C46B);color:#060E1C;font-size:9px;font-weight:800;padding:3px 8px;border-radius:20px;letter-spacing:1px;}
+.badge-verified{position:absolute;top:10px;right:10px;background:rgba(61,184,122,0.2);border:1px solid #3DB87A;color:#3DB87A;font-size:9px;font-weight:700;padding:3px 8px;border-radius:20px;}
+.card-body{padding:12px;}
+.card-title{color:#F5F2EB;font-size:12px;font-weight:700;margin-bottom:4px;line-height:1.3;}
+.card-price{color:#C9A84C;font-size:16px;font-weight:900;margin-bottom:8px;}
+.card-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;}
+.tag{background:rgba(255,255,255,0.06);color:#9BA4B5;font-size:10px;padding:2px 8px;border-radius:20px;}
+.tag.new{background:rgba(61,184,122,0.1);color:#3DB87A;}
+.tag.damaged{background:rgba(201,76,76,0.1);color:#C94C4C;}
+.card-city{color:#9BA4B5;font-size:11px;}
+
+/* BOTTOM NAV */
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:linear-gradient(0deg,#060E1C 80%,transparent);padding:12px 16px 20px;z-index:200;}
+.nav-inner{background:#0A1628;border:1px solid rgba(201,168,76,0.15);border-radius:20px;padding:10px 16px;display:flex;justify-content:space-around;align-items:center;box-shadow:0 -4px 24px rgba(0,0,0,0.6);}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 8px;background:none;border:none;}
+.nav-item.active .nav-lbl{color:#C9A84C;}
+.nav-icon{font-size:20px;}
+.nav-lbl{font-size:9px;color:#9BA4B5;font-weight:600;}
+.nav-post{background:linear-gradient(135deg,#C9A84C,#E4C46B);border-radius:14px;padding:8px 14px;border:none;cursor:pointer;box-shadow:0 4px 16px rgba(201,168,76,0.4);}
+
+/* PROFILE PANEL */
+.profile-panel{display:none;position:fixed;inset:0;background:#060E1C;z-index:300;overflow-y:auto;max-width:480px;left:50%;transform:translateX(-50%);}
+.profile-panel.show{display:block;}
+.profile-header-bg{background:linear-gradient(160deg,#0E2040,#0A1628);padding:20px 20px 24px;}
+.profile-avatar{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#C9A84C,#E4C46B);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:900;color:#060E1C;}
+.profile-name{color:#F5F2EB;font-weight:800;font-size:18px;margin-top:10px;}
+.profile-email{color:#9BA4B5;font-size:12px;margin-top:2px;}
+.profile-stats{display:flex;background:rgba(255,255,255,0.04);border-radius:12px;overflow:hidden;margin-top:16px;}
+.p-stat{flex:1;text-align:center;padding:12px 8px;border-right:1px solid rgba(255,255,255,0.06);}
+.p-stat:last-child{border-right:none;}
+.p-stat-val{color:#C9A84C;font-weight:900;font-size:18px;}
+.p-stat-lbl{color:#9BA4B5;font-size:10px;margin-top:2px;}
+.menu-item{display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer;}
+.menu-icon{font-size:20px;width:32px;text-align:center;}
+.menu-label{color:#F5F2EB;font-size:14px;font-weight:600;flex:1;}
+.menu-arrow{color:#9BA4B5;font-size:16px;}
+.btn-logout{margin:20px;width:calc(100% - 40px);background:rgba(201,76,76,0.12);border:1px solid rgba(201,76,76,0.3);border-radius:12px;padding:14px;color:#C94C4C;font-size:15px;font-weight:700;cursor:pointer;}
+
+/* DETAIL PANEL */
+.detail-panel{display:none;position:fixed;inset:0;background:#060E1C;z-index:300;overflow-y:auto;max-width:480px;left:50%;transform:translateX(-50%);}
+.detail-panel.show{display:block;}
+.detail-hero{height:260px;background:linear-gradient(135deg,#0E2040,#162B52);display:flex;align-items:center;justify-content:center;font-size:100px;position:relative;}
+.back-btn{position:absolute;top:16px;left:16px;background:rgba(10,22,40,0.8);border:none;border-radius:20px;padding:8px 14px;color:#C9A84C;font-size:14px;font-weight:700;cursor:pointer;}
+.detail-content{padding:20px;}
+.detail-title{color:#F5F2EB;font-size:20px;font-weight:800;margin-bottom:6px;}
+.detail-price{color:#C9A84C;font-size:28px;font-weight:900;margin-bottom:14px;}
+.detail-city{color:#9BA4B5;font-size:13px;margin-bottom:16px;}
+.desc-box{background:rgba(255,255,255,0.04);border-radius:12px;padding:14px;margin-bottom:16px;border:1px solid rgba(255,255,255,0.07);}
+.desc-title{color:#F5F2EB;font-weight:700;font-size:13px;margin-bottom:6px;}
+.desc-txt{color:#9BA4B5;font-size:13px;line-height:1.6;}
+.seller-box{background:#0E2040;border-radius:12px;padding:14px;display:flex;align-items:center;gap:12px;border:1px solid rgba(201,168,76,0.15);margin-bottom:100px;}
+.seller-avatar{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#C9A84C,#E4C46B);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;color:#060E1C;}
+.seller-name{color:#F5F2EB;font-weight:700;font-size:14px;}
+.seller-sub{color:#9BA4B5;font-size:11px;margin-top:2px;}
+.detail-cta{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#060E1C;padding:16px 20px;display:flex;gap:12px;border-top:1px solid rgba(255,255,255,0.06);}
+.btn-chat{flex:1;background:linear-gradient(135deg,#C9A84C,#E4C46B);border:none;border-radius:12px;height:52px;color:#060E1C;font-size:15px;font-weight:800;cursor:pointer;}
+.btn-call{width:52px;height:52px;border-radius:12px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);cursor:pointer;font-size:20px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#0E2040;border:1px solid rgba(201,168,76,0.3);border-radius:12px;padding:12px 20px;color:#F5F2EB;font-size:13px;font-weight:600;z-index:999;display:none;animation:fadeIn 0.3s ease;}
+.toast.show{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateX(-50%) translateY(10px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}
+
+/* RTL */
+.rtl{direction:rtl;}
 </style>
 </head>
 <body>
-<div class="app">
-  <!-- Header -->
-  <div class="header">
-    <div class="header-row">
-      <div class="logo">
-        <div class="logo-box">B</div>
-        <div>
-          <div class="logo-text">BAZIRA<span>.</span></div>
-          <div class="logo-sub">MARKETPLACE</div>
-        </div>
-      </div>
-      <div class="header-btns">
-        <button class="btn-lang" onclick="cycleLang()">EN ›</button>
-        <button class="btn-login">Login</button>
-        <span style="font-size:22px;cursor:pointer">🔔</span>
-      </div>
+<div class="app" id="app">
+
+<!-- LOGIN MODAL -->
+<div class="overlay" id="loginOverlay" onclick="closeLoginOnBg(event)">
+  <div class="modal modal-wrap">
+    <button class="modal-close" onclick="closeModal('loginOverlay')">✕</button>
+    <div id="loginForm">
+      <div class="modal-title" id="loginTitle">Welcome Back 👋</div>
+      <div class="modal-sub" id="loginSub">Login to your Bazira account</div>
+      <input type="email" id="loginEmail" placeholder="Email address">
+      <input type="password" id="loginPass" placeholder="Password">
+      <button class="btn-gold" onclick="doLogin()">Login</button>
+      <button class="btn-outline" onclick="switchToRegister()">Create Account</button>
+      <div class="modal-switch">Don't have an account? <span onclick="switchToRegister()">Register</span></div>
     </div>
-    <div class="search-bar">
-      <span>🔍</span>
-      <input type="text" placeholder="Search cars, phones, electronics..." id="searchInput" oninput="filterListings()">
+    <div id="registerForm" style="display:none">
+      <div class="modal-title">Create Account 🚀</div>
+      <div class="modal-sub">Join Bazira marketplace today</div>
+      <input type="text" id="regName" placeholder="Full name">
+      <input type="email" id="regEmail" placeholder="Email address">
+      <input type="tel" id="regPhone" placeholder="Phone number">
+      <input type="password" id="regPass" placeholder="Password">
+      <button class="btn-gold" onclick="doRegister()">Create Account</button>
+      <div class="modal-switch">Already have an account? <span onclick="switchToLogin()">Login</span></div>
     </div>
   </div>
+</div>
 
+<!-- LANG MENU (outside header for z-index) -->
+<div id="langMenuGlobal" class="lang-menu" style="position:fixed;top:60px;right:calc(50% - 200px);z-index:999;">
+  <div class="lang-opt active" id="langEn" onclick="setLang('en')">🇬🇧 English <span>✓</span></div>
+  <div class="lang-opt" id="langKu" onclick="setLang('ku')">🟡 کوردی</div>
+  <div class="lang-opt" id="langAr" onclick="setLang('ar')">🟢 العربية</div>
+</div>
+
+<!-- NOTIF PANEL -->
+<div class="notif-panel" id="notifPanel">
+  <div class="notif-header">
+    <span style="color:#F5F2EB;font-weight:800;font-size:16px" id="notifTitle">🔔 Notifications</span>
+    <button onclick="toggleNotif()" style="background:none;border:none;color:#9BA4B5;font-size:22px;cursor:pointer">✕</button>
+  </div>
+  <div class="notif-item unread">
+    <span class="notif-icon">💬</span>
+    <div class="notif-body">
+      <div class="notif-title">New Message</div>
+      <div class="notif-desc">Someone asked about your Toyota Land Cruiser</div>
+      <div class="notif-time">2 minutes ago</div>
+    </div>
+    <div class="notif-dot"></div>
+  </div>
+  <div class="notif-item unread">
+    <span class="notif-icon">✅</span>
+    <div class="notif-body">
+      <div class="notif-title">Listing Approved</div>
+      <div class="notif-desc">Your BMW 5 Series listing is now live</div>
+      <div class="notif-time">1 hour ago</div>
+    </div>
+    <div class="notif-dot"></div>
+  </div>
+  <div class="notif-item">
+    <span class="notif-icon">❤️</span>
+    <div class="notif-body">
+      <div class="notif-title">Saved by Someone</div>
+      <div class="notif-desc">3 people saved your listing today</div>
+      <div class="notif-time">3 hours ago</div>
+    </div>
+  </div>
+  <div class="notif-item">
+    <span class="notif-icon">🏷️</span>
+    <div class="notif-body">
+      <div class="notif-title">Price Drop Alert</div>
+      <div class="notif-desc">Mercedes C300 you saved dropped in price</div>
+      <div class="notif-time">5 hours ago</div>
+    </div>
+  </div>
+</div>
+
+<!-- PROFILE PANEL -->
+<div class="profile-panel" id="profilePanel">
+  <div class="profile-header-bg">
+    <button onclick="closeProfile()" style="background:none;border:none;color:#C9A84C;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:16px;">← <span id="backTxt">Back</span></button>
+    <div style="display:flex;align-items:center;gap:16px;">
+      <div class="profile-avatar" id="profileAvatar">K</div>
+      <div>
+        <div class="profile-name" id="profileName">Karwan Ahmed</div>
+        <div class="profile-email" id="profileEmail">karwan@bazira.app</div>
+        <div style="color:#C9A84C;font-size:12px;margin-top:4px;">⭐⭐⭐⭐⭐ 4.8 · Member since 2025</div>
+      </div>
+    </div>
+    <div class="profile-stats">
+      <div class="p-stat"><div class="p-stat-val">3</div><div class="p-stat-lbl" id="myListTxt">My Listings</div></div>
+      <div class="p-stat"><div class="p-stat-val">0</div><div class="p-stat-lbl" id="savedTxt2">Saved</div></div>
+      <div class="p-stat"><div class="p-stat-val">12</div><div class="p-stat-lbl" id="msgTxt">Messages</div></div>
+    </div>
+  </div>
+  <div class="menu-item"><span class="menu-icon">🗂️</span><span class="menu-label" id="myListMenuTxt">My Listings</span><span class="menu-arrow">›</span></div>
+  <div class="menu-item"><span class="menu-icon">❤️</span><span class="menu-label" id="savedMenuTxt">Saved</span><span class="menu-arrow">›</span></div>
+  <div class="menu-item"><span class="menu-icon">💬</span><span class="menu-label" id="msgMenuTxt">Messages</span><span class="menu-arrow">›</span></div>
+  <div class="menu-item"><span class="menu-icon">🔔</span><span class="menu-label" id="notifMenuTxt">Notifications</span><span class="menu-arrow">›</span></div>
+  <div class="menu-item"><span class="menu-icon">❓</span><span class="menu-label">Help & FAQ</span><span class="menu-arrow">›</span></div>
+  <div class="menu-item"><span class="menu-icon">⚙️</span><span class="menu-label">Settings</span><span class="menu-arrow">›</span></div>
+  <button class="btn-logout" id="logoutBtn" onclick="doLogout()">Logout</button>
+</div>
+
+<!-- DETAIL PANEL -->
+<div class="detail-panel" id="detailPanel">
+  <div class="detail-hero" id="detailHero">
+    <button class="back-btn" onclick="closeDetail()">← Back</button>
+    <span id="detailEmoji" style="font-size:100px"></span>
+    <div id="detailFeaturedBadge" style="display:none;position:absolute;bottom:14px;left:14px;background:linear-gradient(90deg,#C9A84C,#E4C46B);color:#060E1C;font-size:10px;font-weight:800;padding:4px 12px;border-radius:20px;letter-spacing:1px;">FEATURED</div>
+  </div>
+  <div class="detail-content">
+    <div class="detail-title" id="detailTitle"></div>
+    <div class="detail-price" id="detailPrice"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;" id="detailTags"></div>
+    <div class="detail-city" id="detailCity"></div>
+    <div class="desc-box">
+      <div class="desc-title" id="descTitleTxt">Description</div>
+      <div class="desc-txt" id="detailDesc"></div>
+    </div>
+    <div class="seller-box">
+      <div class="seller-avatar">K</div>
+      <div>
+        <div class="seller-name">Karwan Ahmed</div>
+        <div class="seller-sub">⭐⭐⭐⭐⭐ 4.8 · 42 sales</div>
+      </div>
+      <div style="margin-left:auto;background:rgba(61,184,122,0.15);border:1px solid rgba(61,184,122,0.3);color:#3DB87A;font-size:11px;padding:4px 10px;border-radius:20px;">● Online</div>
+    </div>
+  </div>
+  <div class="detail-cta">
+    <button class="btn-chat" onclick="showToast('💬 Chat opened!')">💬 <span id="chatNowTxt">Chat Now</span></button>
+    <button class="btn-call" onclick="showToast('📞 Calling...')">📞</button>
+  </div>
+</div>
+
+<!-- HEADER -->
+<div class="header" id="mainHeader">
+  <div class="header-row">
+    <div class="logo" onclick="setTab('home')">
+      <div class="logo-box">B</div>
+      <div>
+        <div class="logo-name">BAZIRA<span>.</span></div>
+        <div class="logo-sub">MARKETPLACE</div>
+      </div>
+    </div>
+    <div class="header-btns">
+      <div style="position:relative;">
+        <button class="btn-lang" id="langBtn" onclick="toggleLangMenu()">EN ›</button>
+      </div>
+      <button class="btn-login-hdr" id="loginBtn" onclick="openLogin()">Login</button>
+      <button class="btn-avatar" id="avatarBtn" style="display:none" onclick="openProfile()">👤 K</button>
+      <button class="bell-btn" onclick="toggleNotif()">🔔<div class="bell-dot"></div></button>
+    </div>
+  </div>
+  <div class="search-bar">
+    <span>🔍</span>
+    <input type="text" id="searchInput" placeholder="Search cars, phones, electronics..." oninput="render()">
+    <span id="clearSearch" style="cursor:pointer;color:#9BA4B5;display:none" onclick="clearSearch()">✕</span>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div id="homeScreen">
   <!-- Hero -->
   <div class="hero">
-    <div class="hero-tag">KURDISTAN'S PREMIER MARKETPLACE</div>
-    <h1 class="hero-title">Find Everything,<br>Sell Anything 🛍️</h1>
-    <p class="hero-sub">Trusted marketplace for Kurdistan & Iraq</p>
+    <div class="hero-tag" id="heroTag">KURDISTAN'S PREMIER MARKETPLACE</div>
+    <h1 class="hero-title" id="heroTitle">Find Everything,<br>Sell Anything 🛍️</h1>
+    <p class="hero-sub" id="heroSub">Trusted marketplace for Kurdistan & Iraq</p>
     <div class="hero-stats">
-      <div><div class="stat-val">50K+</div><div class="stat-lbl">listings</div></div>
-      <div><div class="stat-val">6</div><div class="stat-lbl">cities</div></div>
-      <div><div class="stat-val">12K+</div><div class="stat-lbl">sellers</div></div>
+      <div><div class="stat-val">50K+</div><div class="stat-lbl" id="listingsTxt">listings</div></div>
+      <div><div class="stat-val">6</div><div class="stat-lbl" id="citiesTxt">cities</div></div>
+      <div><div class="stat-val">12K+</div><div class="stat-lbl" id="sellersTxt">sellers</div></div>
     </div>
   </div>
 
-  <!-- Category pills -->
-  <div class="pills">
-    <div class="pill active" onclick="filterCat('all',this)">All</div>
-    <div class="pill" onclick="filterCat('cars',this)">🚗 Cars</div>
-    <div class="pill" onclick="filterCat('phones',this)">📱 Phones</div>
-    <div class="pill" onclick="filterCat('electronics',this)">💻 Electronics</div>
-    <div class="pill" onclick="filterCat('realEstate',this)">🏠 Real Estate</div>
-    <div class="pill" onclick="filterCat('motorcycles',this)">🏍️ Motorcycles</div>
-    <div class="pill" onclick="filterCat('spareParts',this)">⚙️ Spare Parts</div>
-  </div>
+  <!-- Pills -->
+  <div class="pills" id="pillsRow"></div>
 
-  <!-- Category grid -->
-  <div class="section">
-    <div class="cat-grid">
-      <div class="cat-item" style="--bg:#1e3a5f;--bg2:#162B52" onclick="filterCat('cars',null)"><span class="cat-icon">🚗</span><span class="cat-label">Cars</span></div>
-      <div class="cat-item" style="--bg:#1a4a3a;--bg2:#0d2e1e" onclick="filterCat('phones',null)"><span class="cat-icon">📱</span><span class="cat-label">Phones</span></div>
-      <div class="cat-item" style="--bg:#3a1e5f;--bg2:#2a1245" onclick="filterCat('electronics',null)"><span class="cat-icon">💻</span><span class="cat-label">Electronics</span></div>
-      <div class="cat-item" style="--bg:#5f3a1e;--bg2:#3d2410" onclick="filterCat('fashion',null)"><span class="cat-icon">👔</span><span class="cat-label">Fashion</span></div>
-      <div class="cat-item" style="--bg:#1e5f3a;--bg2:#0d3d22" onclick="filterCat('realEstate',null)"><span class="cat-icon">🏠</span><span class="cat-label">Real Estate</span></div>
-      <div class="cat-item" style="--bg:#5f1e2e;--bg2:#3d1018" onclick="filterCat('motorcycles',null)"><span class="cat-icon">🏍️</span><span class="cat-label">Motorcycles</span></div>
-      <div class="cat-item" style="--bg:#2e3a1e;--bg2:#1c2610" onclick="filterCat('spareParts',null)"><span class="cat-icon">⚙️</span><span class="cat-label">Spare Parts</span></div>
-      <div class="cat-item" style="--bg:#1e2e3a;--bg2:#101e26" onclick="filterCat('all',null)"><span class="cat-icon">☰</span><span class="cat-label">All</span></div>
-    </div>
-  </div>
+  <!-- Cat grid -->
+  <div class="cat-grid" id="catGrid"></div>
 
   <!-- Featured -->
   <div style="padding-top:20px">
     <div class="section-header">
-      <span class="section-title">⭐ Featured</span>
-      <button class="view-all">View All</button>
+      <span class="section-title" id="featuredTitle">⭐ Featured</span>
+      <button class="view-all" id="viewAllTxt">View All</button>
     </div>
     <div class="featured-scroll" id="featuredGrid"></div>
   </div>
@@ -164,120 +358,325 @@
   <!-- Latest -->
   <div style="padding-top:20px">
     <div class="section-header">
-      <span class="section-title">🕐 Latest Listings</span>
+      <span class="section-title" id="latestTitle">🕐 Latest Listings</span>
       <span style="color:#9BA4B5;font-size:12px" id="resultCount"></span>
     </div>
     <div class="listings-grid" id="listingsGrid"></div>
   </div>
+</div>
 
-  <!-- Coming soon -->
-  <div class="coming-soon">
-    <h3>📱 Download the App</h3>
-    <p>Get the full Bazira experience on your phone</p>
-    <div class="app-badges">
-      <div class="app-badge">🍎 App Store</div>
-      <div class="app-badge">🤖 Google Play</div>
-    </div>
-  </div>
-
-  <!-- Bottom nav -->
-  <div class="bottom-nav">
-    <div class="nav-inner">
-      <button class="nav-item active" onclick="setTab('home',this)"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></button>
-      <button class="nav-item" onclick="setTab('search',this)"><span class="nav-icon">🔍</span><span class="nav-label">Search</span></button>
-      <button class="nav-post"><span class="nav-icon">+</span></button>
-      <button class="nav-item" onclick="setTab('saved',this)"><span class="nav-icon">🤍</span><span class="nav-label">Saved</span></button>
-      <button class="nav-item" onclick="setTab('profile',this)"><span class="nav-icon">👤</span><span class="nav-label">Profile</span></button>
-    </div>
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <div class="nav-inner">
+    <button class="nav-item active" id="nav-home" onclick="setTab('home')"><span class="nav-icon">🏠</span><span class="nav-lbl" id="navHome">Home</span></button>
+    <button class="nav-item" id="nav-search" onclick="setTab('search')"><span class="nav-icon">🔍</span><span class="nav-lbl" id="navSearch">Search</span></button>
+    <button class="nav-post" onclick="openLogin()"><span style="font-size:22px;color:#060E1C;">+</span></button>
+    <button class="nav-item" id="nav-saved" onclick="setTab('saved')"><span class="nav-icon">🤍</span><span class="nav-lbl" id="navSaved">Saved</span></button>
+    <button class="nav-item" id="nav-profile" onclick="setTab('profile')"><span class="nav-icon">👤</span><span class="nav-lbl" id="navProfile">Profile</span></button>
   </div>
 </div>
 
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+</div><!-- /app -->
+
 <script>
+// ── DATA ────────────────────────────────────────────────────────
 const LISTINGS = [
-  {id:1,cat:'cars',title:'Toyota Land Cruiser GXR 2022',price:85000000,city:'Erbil',year:2022,mileage:18000,condition:'used',featured:true,verified:true,emoji:'🚙'},
-  {id:2,cat:'cars',title:'BMW 5 Series 2021',price:62000000,city:'Sulaymaniyah',year:2021,mileage:32000,condition:'used',featured:true,verified:true,emoji:'🚗'},
-  {id:3,cat:'phones',title:'iPhone 15 Pro Max 256GB',price:2800000,city:'Erbil',condition:'new',featured:true,verified:false,emoji:'📱'},
-  {id:4,cat:'realEstate',title:'Villa 450m² in Erbil',price:450000000,city:'Erbil',condition:'new',featured:false,verified:true,emoji:'🏠'},
-  {id:5,cat:'cars',title:'Mercedes C300 2023',price:75000000,city:'Duhok',year:2023,mileage:5000,condition:'used',featured:false,verified:true,emoji:'🚘'},
-  {id:6,cat:'phones',title:'Samsung Galaxy S24 Ultra',price:2200000,city:'Sulaymaniyah',condition:'new',featured:false,verified:false,emoji:'📲'},
-  {id:7,cat:'electronics',title:'LG 65" OLED TV 4K',price:3500000,city:'Kirkuk',condition:'new',featured:false,verified:false,emoji:'📺'},
-  {id:8,cat:'motorcycles',title:'Yamaha MT-07 2022',price:18000000,city:'Erbil',year:2022,mileage:8000,condition:'used',featured:false,verified:true,emoji:'🏍️'},
-  {id:9,cat:'phones',title:'iPhone 14 Pro — Cracked Screen',price:850000,city:'Erbil',condition:'damaged',featured:false,verified:false,emoji:'📱'},
-  {id:10,cat:'cars',title:'Toyota Corolla 2019 — Accident',price:12000000,city:'Duhok',year:2019,mileage:55000,condition:'damaged',featured:false,verified:false,emoji:'🚗'},
+  {id:1,cat:'cars',en:'Toyota Land Cruiser GXR 2022',ku:'تۆیۆتا لاند کروزەر 2022',ar:'تويوتا لاند كروزر 2022',price:85000000,city:{en:'Erbil',ku:'هەولێر',ar:'أربيل'},year:2022,mileage:18000,condition:'used',featured:true,verified:true,emoji:'🚙',desc:'Full option, perfect condition, one owner, full service history.'},
+  {id:2,cat:'cars',en:'BMW 5 Series 2021',ku:'BMW 5 Series 2021',ar:'بي إم دبليو الفئة الخامسة 2021',price:62000000,city:{en:'Sulaymaniyah',ku:'سلێمانی',ar:'السليمانية'},year:2021,mileage:32000,condition:'used',featured:true,verified:true,emoji:'🚗',desc:'M Sport package, panoramic roof, excellent condition.'},
+  {id:3,cat:'phones',en:'iPhone 15 Pro Max 256GB',ku:'ئایفۆن 15 پرۆ مەکس',ar:'آيفون 15 برو ماكس',price:2800000,city:{en:'Erbil',ku:'هەولێر',ar:'أربيل'},condition:'new',featured:true,verified:false,emoji:'📱',desc:'Natural Titanium, sealed box, Face ID, 48MP camera.'},
+  {id:4,cat:'realEstate',en:'Villa 450m² in Erbil',ku:'ڤیلا 450م² لە هەولێر',ar:'فيلا 450م² في أربيل',price:450000000,city:{en:'Erbil',ku:'هەولێر',ar:'أربيل'},condition:'new',featured:false,verified:true,emoji:'🏠',desc:'Modern design, private garden, 3 floors, parking for 4 cars.'},
+  {id:5,cat:'cars',en:'Mercedes C300 2023',ku:'مەرسێدس C300 2023',ar:'مرسيدس C300 2023',price:75000000,city:{en:'Duhok',ku:'دهۆک',ar:'دهوك'},year:2023,mileage:5000,condition:'used',featured:false,verified:true,emoji:'🚘',desc:'AMG line, barely used, all original, warranty valid.'},
+  {id:6,cat:'phones',en:'Samsung Galaxy S24 Ultra',ku:'سامسونگ S24 ئۆلترا',ar:'سامسونج S24 الترا',price:2200000,city:{en:'Sulaymaniyah',ku:'سلێمانی',ar:'السليمانية'},condition:'new',featured:false,verified:false,emoji:'📲',desc:'Titanium Black, 512GB, S Pen included, sealed box.'},
+  {id:7,cat:'electronics',en:'LG 65" OLED TV 4K',ku:'تەلەفزیۆن LG 65 OLED',ar:'تلفزيون LG 65 بوصة OLED',price:3500000,city:{en:'Kirkuk',ku:'کەرکووک',ar:'كركوك'},condition:'new',featured:false,verified:false,emoji:'📺',desc:'2024 model, webOS smart TV, Dolby Vision & Atmos.'},
+  {id:8,cat:'motorcycles',en:'Yamaha MT-07 2022',ku:'یاماها MT-07 2022',ar:'ياماها MT-07 2022',price:18000000,city:{en:'Erbil',ku:'هەولێر',ar:'أربيل'},year:2022,mileage:8000,condition:'used',featured:false,verified:true,emoji:'🏍️',desc:'Sport naked, excellent condition, original exhaust.'},
+  {id:9,cat:'phones',en:'iPhone 14 Pro — Cracked Screen',ku:'ئایفۆن 14 پرۆ — شووشەی شکاو',ar:'آيفون 14 برو — شاشة مكسورة',price:850000,city:{en:'Erbil',ku:'هەولێر',ar:'أربيل'},condition:'damaged',featured:false,verified:false,emoji:'📱',desc:'Cracked screen but works perfectly. Great for repair or parts.'},
+  {id:10,cat:'cars',en:'Toyota Corolla 2019 — Accident',ku:'تۆیۆتا کۆرۆلا 2019 — حادیسە',ar:'تويوتا كورولا 2019 — حادث',price:12000000,city:{en:'Duhok',ku:'دهۆک',ar:'دهوك'},year:2019,mileage:55000,condition:'damaged',featured:false,verified:false,emoji:'🚗',desc:'Front damage from accident. Engine perfect. Repair and drive.'},
 ];
 
+const CATS = [
+  {key:'cars',en:'Cars',ku:'ئۆتۆمبێل',ar:'سيارات',icon:'🚗',bg:'#1e3a5f'},
+  {key:'phones',en:'Phones',ku:'مۆبایل',ar:'هواتف',icon:'📱',bg:'#1a4a3a'},
+  {key:'electronics',en:'Electronics',ku:'ئەلیکترۆنیات',ar:'إلكترونيات',icon:'💻',bg:'#3a1e5f'},
+  {key:'fashion',en:'Fashion',ku:'جل و بەرگ',ar:'أزياء',icon:'👔',bg:'#5f3a1e'},
+  {key:'realEstate',en:'Real Estate',ku:'خانووبەرە',ar:'عقارات',icon:'🏠',bg:'#1e5f3a'},
+  {key:'motorcycles',en:'Motorcycles',ku:'مۆتۆسیکل',ar:'دراجات',icon:'🏍️',bg:'#5f1e2e'},
+  {key:'spareParts',en:'Spare Parts',ku:'پارچەی یەدەک',ar:'قطع غيار',icon:'⚙️',bg:'#2e3a1e'},
+  {key:'all',en:'All',ku:'هەموو',ar:'الكل',icon:'☰',bg:'#1e2e3a'},
+];
+
+const T = {
+  en:{dir:'ltr',search:'Search cars, phones, electronics...',heroTag:"KURDISTAN'S PREMIER MARKETPLACE",heroTitle:'Find Everything,<br>Sell Anything 🛍️',heroSub:'Trusted marketplace for Kurdistan & Iraq',listings:'listings',cities:'cities',sellers:'sellers',featured:'⭐ Featured',viewAll:'View All',latest:'🕐 Latest Listings',new:'New',used:'Used',damaged:'Damaged',login:'Login',register:'Create Account',logout:'Logout',back:'Back',chatNow:'Chat Now',notif:'🔔 Notifications',profile:'Profile',myList:'My Listings',saved:'Saved',messages:'Messages',description:'Description',home:'Home',search:'Search',welcomeBack:'Welcome Back 👋',loginSub:'Login to your Bazira account',createAcc:'Create Account 🚀',registerSub:'Join Bazira marketplace today'},
+  ku:{dir:'rtl',search:'گەڕان بۆ ئۆتۆمبێل، مۆبایل...',heroTag:'بازاڕی سەرەکی کوردستان',heroTitle:'هەموو شتێک بدۆزەرەوە،<br>هەر شتێک بیفرۆشە 🛍️',heroSub:'بازاڕی متمانەپێکراو بۆ کوردستان',listings:'ئیلان',cities:'شار',sellers:'فرۆشیار',featured:'⭐ ئیلانە تایبەتەکان',viewAll:'هەموویان ببینە',latest:'🕐 دوایین ئیلانەکان',new:'نوێ',used:'بەکارهاتوو',damaged:'خراپکراو',login:'چوونەژوورەوە',register:'تۆمارکردن',logout:'دەرچوون',back:'گەڕانەوە',chatNow:'چات بکە',notif:'🔔 ئاگادارکردنەوەکان',profile:'پرۆفایل',myList:'ئیلانەکانم',saved:'پاشەکەوت',messages:'پەیامەکان',description:'وەسف',home:'سەرەکی',search:'گەڕان',welcomeBack:'بەخێربێیت 👋',loginSub:'بچۆ ژوورەوە بۆ ئەکاونتی بازیرا',createAcc:'ئەکاونت درووست بکە 🚀',registerSub:'ئەمڕۆ بەشداری بازیرا بکە'},
+  ar:{dir:'rtl',search:'ابحث عن سيارات، هواتف...',heroTag:'السوق الأول في كردستان',heroTitle:'ابحث عن كل شيء،<br>بع أي شيء 🛍️',heroSub:'السوق الموثوق لكردستان والعراق',listings:'إعلان',cities:'مدينة',sellers:'بائع',featured:'⭐ الإعلانات المميزة',viewAll:'عرض الكل',latest:'🕐 أحدث الإعلانات',new:'جديد',used:'مستعمل',damaged:'تالف',login:'تسجيل الدخول',register:'إنشاء حساب',logout:'تسجيل الخروج',back:'رجوع',chatNow:'الدردشة الآن',notif:'🔔 الإشعارات',profile:'الملف الشخصي',myList:'إعلاناتي',saved:'المحفوظات',messages:'الرسائل',description:'الوصف',home:'الرئيسية',search:'بحث',welcomeBack:'مرحباً بعودتك 👋',loginSub:'سجل دخولك إلى حساب بازيرا',createAcc:'إنشاء حساب 🚀',registerSub:'انضم إلى بازيرا اليوم'},
+};
+
+// ── STATE ────────────────────────────────────────────────────────
+let lang = 'en';
 let currentCat = 'all';
-let currentSearch = '';
+let loggedIn = false;
+let userName = '';
+let userEmail = '';
 
-function fmtPrice(p) {
-  if(p>=1000000) return (p/1000000).toFixed(1)+'M IQD';
-  if(p>=1000) return (p/1000).toFixed(0)+'K IQD';
-  return p+' IQD';
+// ── HELPERS ──────────────────────────────────────────────────────
+function t(key){ return T[lang][key] || key; }
+function fmtPrice(p){ if(p>=1000000) return (p/1000000).toFixed(1)+'M IQD'; if(p>=1000) return (p/1000).toFixed(0)+'K IQD'; return p+' IQD'; }
+function getTitle(item){ return lang==='ku'?item.ku:lang==='ar'?item.ar:item.en; }
+function getCity(item){ return item.city[lang]||item.city.en; }
+
+// ── LANGUAGE ─────────────────────────────────────────────────────
+function setLang(l){
+  lang=l;
+  document.getElementById('app').className = 'app '+(T[l].dir==='rtl'?'rtl':'');
+  document.getElementById('langBtn').textContent = l==='en'?'EN ›':l==='ku'?'كو ›':'عر ›';
+  ['langEn','langKu','langAr'].forEach(id=>document.getElementById(id).classList.remove('active'));
+  document.getElementById(l==='en'?'langEn':l==='ku'?'langKu':'langAr').classList.add('active');
+  document.getElementById('langMenuGlobal').classList.remove('show');
+  // Update search placeholder
+  document.getElementById('searchInput').placeholder = t('search');
+  // Update hero
+  document.getElementById('heroTag').textContent = t('heroTag');
+  document.getElementById('heroTitle').innerHTML = t('heroTitle');
+  document.getElementById('heroSub').textContent = t('heroSub');
+  document.getElementById('listingsTxt').textContent = t('listings');
+  document.getElementById('citiesTxt').textContent = t('cities');
+  document.getElementById('sellersTxt').textContent = t('sellers');
+  // Nav
+  document.getElementById('navHome').textContent = t('home');
+  document.getElementById('navSearch').textContent = t('search');
+  document.getElementById('navSaved').textContent = t('saved');
+  document.getElementById('navProfile').textContent = t('profile');
+  // Buttons
+  if(!loggedIn) document.getElementById('loginBtn').textContent = t('login');
+  document.getElementById('featuredTitle').textContent = t('featured');
+  document.getElementById('viewAllTxt').textContent = t('viewAll');
+  document.getElementById('latestTitle').textContent = t('latest');
+  document.getElementById('notifTitle').textContent = t('notif');
+  document.getElementById('backTxt').textContent = t('back');
+  document.getElementById('chatNowTxt').textContent = t('chatNow');
+  document.getElementById('myListTxt').textContent = t('myList');
+  document.getElementById('savedTxt2').textContent = t('saved');
+  document.getElementById('msgTxt').textContent = t('messages');
+  document.getElementById('myListMenuTxt').textContent = t('myList');
+  document.getElementById('savedMenuTxt').textContent = t('saved');
+  document.getElementById('msgMenuTxt').textContent = t('messages');
+  document.getElementById('notifMenuTxt').textContent = t('notif');
+  document.getElementById('logoutBtn').textContent = t('logout');
+  document.getElementById('descTitleTxt').textContent = t('description');
+  // Login modal
+  document.getElementById('loginTitle').textContent = t('welcomeBack');
+  document.getElementById('loginSub').textContent = t('loginSub');
+  render();
 }
 
-function condTag(c) {
-  if(c==='new') return '<span class="tag new">New</span>';
-  if(c==='damaged') return '<span class="tag damaged">Damaged</span>';
-  return '<span class="tag">Used</span>';
+function toggleLangMenu(){
+  document.getElementById('langMenuGlobal').classList.toggle('show');
 }
 
-function cardHTML(item) {
-  return `<div class="card" onclick="alert('${item.title}\\n${fmtPrice(item.price)}\\n📍 ${item.city}')">
+document.addEventListener('click', function(e){
+  if(!e.target.closest('#langBtn') && !e.target.closest('#langMenuGlobal')){
+    document.getElementById('langMenuGlobal').classList.remove('show');
+  }
+});
+
+// ── AUTH ─────────────────────────────────────────────────────────
+function openLogin(){
+  document.getElementById('loginOverlay').classList.add('show');
+  switchToLogin();
+}
+function closeModal(id){ document.getElementById(id).classList.remove('show'); }
+function closeLoginOnBg(e){ if(e.target===document.getElementById('loginOverlay')) closeModal('loginOverlay'); }
+
+function switchToLogin(){
+  document.getElementById('loginForm').style.display='block';
+  document.getElementById('registerForm').style.display='none';
+}
+function switchToRegister(){
+  document.getElementById('loginForm').style.display='none';
+  document.getElementById('registerForm').style.display='block';
+}
+
+function doLogin(){
+  const email = document.getElementById('loginEmail').value;
+  const pass = document.getElementById('loginPass').value;
+  if(!email || !pass){ showToast('⚠️ Please fill in all fields'); return; }
+  // Simple validation
+  loggedIn = true;
+  userName = email.split('@')[0];
+  userEmail = email;
+  updateAuthUI();
+  closeModal('loginOverlay');
+  showToast('✅ Welcome back, '+userName+'!');
+}
+
+function doRegister(){
+  const name = document.getElementById('regName').value;
+  const email = document.getElementById('regEmail').value;
+  const phone = document.getElementById('regPhone').value;
+  const pass = document.getElementById('regPass').value;
+  if(!name||!email||!phone||!pass){ showToast('⚠️ Please fill in all fields'); return; }
+  loggedIn = true;
+  userName = name;
+  userEmail = email;
+  updateAuthUI();
+  closeModal('loginOverlay');
+  showToast('🎉 Welcome to Bazira, '+name+'!');
+}
+
+function doLogout(){
+  loggedIn = false;
+  userName = '';
+  userEmail = '';
+  updateAuthUI();
+  closeProfile();
+  showToast('👋 Logged out successfully');
+}
+
+function updateAuthUI(){
+  document.getElementById('loginBtn').style.display = loggedIn?'none':'block';
+  document.getElementById('avatarBtn').style.display = loggedIn?'block':'none';
+  if(loggedIn){
+    document.getElementById('avatarBtn').textContent = '👤 '+userName.charAt(0).toUpperCase();
+    document.getElementById('profileName').textContent = userName;
+    document.getElementById('profileEmail').textContent = userEmail;
+    document.getElementById('profileAvatar').textContent = userName.charAt(0).toUpperCase();
+  }
+}
+
+// ── NOTIFICATIONS ─────────────────────────────────────────────────
+function toggleNotif(){
+  document.getElementById('notifPanel').classList.toggle('show');
+}
+
+// ── PROFILE ───────────────────────────────────────────────────────
+function openProfile(){
+  if(!loggedIn){ openLogin(); return; }
+  document.getElementById('profilePanel').classList.add('show');
+}
+function closeProfile(){
+  document.getElementById('profilePanel').classList.remove('show');
+}
+
+// ── DETAIL ────────────────────────────────────────────────────────
+function openDetail(item){
+  document.getElementById('detailEmoji').textContent = item.emoji;
+  document.getElementById('detailFeaturedBadge').style.display = item.featured?'block':'none';
+  document.getElementById('detailTitle').textContent = getTitle(item);
+  document.getElementById('detailPrice').textContent = fmtPrice(item.price);
+  document.getElementById('detailCity').textContent = '📍 '+getCity(item);
+  document.getElementById('detailDesc').textContent = item.desc;
+  // Tags
+  let tags = '';
+  if(item.year) tags += `<span class="tag">${item.year}</span>`;
+  if(item.mileage) tags += `<span class="tag">${item.mileage.toLocaleString()} km</span>`;
+  const cond = item.condition==='new'?t('new'):item.condition==='damaged'?t('damaged'):t('used');
+  const condClass = item.condition==='new'?'new':item.condition==='damaged'?'damaged':'';
+  tags += `<span class="tag ${condClass}">${cond}</span>`;
+  document.getElementById('detailTags').innerHTML = tags;
+  document.getElementById('detailPanel').classList.add('show');
+}
+function closeDetail(){
+  document.getElementById('detailPanel').classList.remove('show');
+}
+
+// ── TABS ──────────────────────────────────────────────────────────
+function setTab(tab){
+  ['home','search','saved','profile'].forEach(t=>{
+    const el = document.getElementById('nav-'+t);
+    if(el) el.classList.remove('active');
+  });
+  const navEl = document.getElementById('nav-'+tab);
+  if(navEl) navEl.classList.add('active');
+
+  if(tab==='profile'){ openProfile(); return; }
+  if(tab==='search'){ document.getElementById('searchInput').focus(); }
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2800);
+}
+
+// ── CLEAR SEARCH ─────────────────────────────────────────────────
+function clearSearch(){
+  document.getElementById('searchInput').value='';
+  document.getElementById('clearSearch').style.display='none';
+  render();
+}
+
+// ── RENDER ────────────────────────────────────────────────────────
+function render(){
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  document.getElementById('clearSearch').style.display = q?'block':'none';
+
+  const filtered = LISTINGS.filter(l=>{
+    const mCat = currentCat==='all'||l.cat===currentCat;
+    const mQ = !q||l.en.toLowerCase().includes(q)||l.ku.includes(q)||l.ar.includes(q);
+    return mCat && mQ;
+  });
+
+  const featured = filtered.filter(l=>l.featured);
+  const latest = filtered.filter(l=>!l.featured);
+
+  // Pills
+  const pillsRow = document.getElementById('pillsRow');
+  pillsRow.innerHTML = `<div class="pill ${currentCat==='all'?'active':''}" onclick="setCat('all')">${t('home')==='Home'?'All':CATS.find(c=>c.key==='all')[lang]||'All'}</div>`
+    + CATS.filter(c=>c.key!=='all').map(c=>`<div class="pill ${currentCat===c.key?'active':''}" onclick="setCat('${c.key}')">${c.icon} ${c[lang]||c.en}</div>`).join('');
+
+  // Cat grid
+  document.getElementById('catGrid').innerHTML = CATS.map(c=>`
+    <div class="cat-item" style="background:${c.bg}" onclick="setCat('${c.key}')">
+      <span class="cat-icon">${c.icon}</span>
+      <span class="cat-label">${c[lang]||c.en}</span>
+    </div>`).join('');
+
+  // Featured
+  document.getElementById('featuredGrid').innerHTML = featured.map(cardHTML).map(h=>`<div style="min-width:200px;flex-shrink:0">${h}</div>`).join('');
+
+  // Latest
+  document.getElementById('listingsGrid').innerHTML = (latest.length?latest:filtered).map(cardHTML).join('');
+  document.getElementById('resultCount').textContent = filtered.length+' '+t('listings');
+}
+
+function cardHTML(item){
+  const cond = item.condition==='new'?t('new'):item.condition==='damaged'?t('damaged'):t('used');
+  const condClass = item.condition==='new'?'new':item.condition==='damaged'?'damaged':'';
+  return `<div class="card" onclick="openDetail(LISTINGS.find(l=>l.id===${item.id}))">
     <div class="card-img">
       ${item.featured?'<span class="badge-featured">FEATURED</span>':''}
       ${item.verified?'<span class="badge-verified">✓ Verified</span>':''}
       <span>${item.emoji}</span>
     </div>
     <div class="card-body">
-      <div class="card-title">${item.title}</div>
+      <div class="card-title">${getTitle(item)}</div>
       <div class="card-price">${fmtPrice(item.price)}</div>
       <div class="card-tags">
         ${item.year?`<span class="tag">${item.year}</span>`:''}
         ${item.mileage?`<span class="tag">${item.mileage.toLocaleString()} km</span>`:''}
-        ${condTag(item.condition)}
+        <span class="tag ${condClass}">${cond}</span>
       </div>
-      <div class="card-city">📍 ${item.city}</div>
+      <div class="card-city">📍 ${getCity(item)}</div>
     </div>
   </div>`;
 }
 
-function render() {
-  const filtered = LISTINGS.filter(l => {
-    const mCat = currentCat==='all' || l.cat===currentCat;
-    const mQ = !currentSearch || l.title.toLowerCase().includes(currentSearch.toLowerCase());
-    return mCat && mQ;
-  });
-  const featured = filtered.filter(l=>l.featured);
-  const latest = filtered.filter(l=>!l.featured);
-  document.getElementById('featuredGrid').innerHTML = featured.map(cardHTML).join('');
-  document.getElementById('listingsGrid').innerHTML = (latest.length?latest:filtered).map(cardHTML).join('');
-  document.getElementById('resultCount').textContent = filtered.length + ' listings';
-}
-
-function filterCat(cat, el) {
+function setCat(cat){
   currentCat = cat;
-  document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
-  if(el) el.classList.add('active');
   render();
 }
 
-function filterListings() {
-  currentSearch = document.getElementById('searchInput').value;
-  render();
-}
+// ── POST AD ───────────────────────────────────────────────────────
+document.querySelector('.nav-post').onclick = function(){
+  if(!loggedIn){ openLogin(); showToast('⚠️ Please login to post an ad'); return; }
+  showToast('✅ Post Ad feature coming soon!');
+};
 
-function setTab(tab, el) {
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  if(el) el.classList.add('active');
-}
-
-const langs = ['EN','كو','عر'];
-let langIdx = 0;
-function cycleLang() {
-  langIdx = (langIdx+1)%langs.length;
-  document.querySelector('.btn-lang').textContent = langs[langIdx]+' ›';
-}
-
+// ── INIT ──────────────────────────────────────────────────────────
 render();
 </script>
 </body>
