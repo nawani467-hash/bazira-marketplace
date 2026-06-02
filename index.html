@@ -260,12 +260,12 @@ body{background:#060E1C;color:#F5F2EB;font-family:'Segoe UI',sans-serif;overflow
       <div class="p-stat"><div class="p-stat-val">12</div><div class="p-stat-lbl" id="msgTxt">Messages</div></div>
     </div>
   </div>
-  <div class="menu-item"><span class="menu-icon">🗂️</span><span class="menu-label" id="myListMenuTxt">My Listings</span><span class="menu-arrow">›</span></div>
-  <div class="menu-item"><span class="menu-icon">❤️</span><span class="menu-label" id="savedMenuTxt">Saved</span><span class="menu-arrow">›</span></div>
-  <div class="menu-item"><span class="menu-icon">💬</span><span class="menu-label" id="msgMenuTxt">Messages</span><span class="menu-arrow">›</span></div>
-  <div class="menu-item"><span class="menu-icon">🔔</span><span class="menu-label" id="notifMenuTxt">Notifications</span><span class="menu-arrow">›</span></div>
-  <div class="menu-item"><span class="menu-icon">❓</span><span class="menu-label">Help & FAQ</span><span class="menu-arrow">›</span></div>
-  <div class="menu-item"><span class="menu-icon">⚙️</span><span class="menu-label">Settings</span><span class="menu-arrow">›</span></div>
+  <div class="menu-item" onclick="openSubPage('mylistings')"><span class="menu-icon">🗂️</span><span class="menu-label" id="myListMenuTxt">My Listings</span><span class="menu-arrow">›</span></div>
+  <div class="menu-item" onclick="openSubPage('saved')"><span class="menu-icon">❤️</span><span class="menu-label" id="savedMenuTxt">Saved</span><span class="menu-arrow">›</span></div>
+  <div class="menu-item" onclick="openSubPage('messages')"><span class="menu-icon">💬</span><span class="menu-label" id="msgMenuTxt">Messages</span><span class="menu-arrow">›</span></div>
+  <div class="menu-item" onclick="openSubPage('notifications')"><span class="menu-icon">🔔</span><span class="menu-label" id="notifMenuTxt">Notifications</span><span class="menu-arrow">›</span></div>
+  <div class="menu-item" onclick="openSubPage('faq')"><span class="menu-icon">❓</span><span class="menu-label">Help & FAQ</span><span class="menu-arrow">›</span></div>
+  <div class="menu-item" onclick="openSubPage('settings')"><span class="menu-icon">⚙️</span><span class="menu-label">Settings</span><span class="menu-arrow">›</span></div>
   <button class="btn-logout" id="logoutBtn" onclick="doLogout()">Logout</button>
 </div>
 
@@ -298,6 +298,15 @@ body{background:#060E1C;color:#F5F2EB;font-family:'Segoe UI',sans-serif;overflow
     <button class="btn-chat" onclick="showToast('💬 Chat opened!')">💬 <span id="chatNowTxt">Chat Now</span></button>
     <button class="btn-call" onclick="showToast('📞 Calling...')">📞</button>
   </div>
+</div>
+
+<!-- SUBPAGE PANEL -->
+<div id="subPage" style="display:none;position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;height:100%;background:#060E1C;z-index:700;overflow-y:auto;">
+  <div style="background:#0E2040;padding:16px 20px;display:flex;align-items:center;gap:14px;border-bottom:1px solid rgba(201,168,76,0.15);position:sticky;top:0;">
+    <button onclick="closeSubPage()" style="background:none;border:none;color:#C9A84C;font-size:15px;font-weight:700;cursor:pointer;">← Back</button>
+    <span id="subPageTitle" style="color:#F5F2EB;font-weight:800;font-size:16px;"></span>
+  </div>
+  <div id="subPageContent" style="padding:20px;"></div>
 </div>
 
 <!-- HEADER -->
@@ -670,7 +679,161 @@ function setCat(cat){
   render();
 }
 
-// ── POST AD ───────────────────────────────────────────────────────
+// ── SUBPAGES ──────────────────────────────────────────────────────
+function openSubPage(page){
+  const panel = document.getElementById('subPage');
+  const title = document.getElementById('subPageTitle');
+  const content = document.getElementById('subPageContent');
+  panel.style.display = 'block';
+
+  const pages = {
+    mylistings: {
+      en:'My Listings', ku:'ئیلانەکانم', ar:'إعلاناتي',
+      html: `
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          ${LISTINGS.slice(0,3).map(l=>`
+            <div style="background:#0E2040;border-radius:14px;overflow:hidden;border:1px solid rgba(201,168,76,0.15);">
+              <div style="height:90px;background:linear-gradient(135deg,#0a1628,#162B52);display:flex;align-items:center;justify-content:center;font-size:40px;">${l.emoji}</div>
+              <div style="padding:10px;">
+                <div style="color:#F5F2EB;font-size:11px;font-weight:700;margin-bottom:4px;line-height:1.3;">${getTitle(l)}</div>
+                <div style="color:#C9A84C;font-size:13px;font-weight:900;margin-bottom:6px;">${fmtPrice(l.price)}</div>
+                <span style="background:rgba(61,184,122,0.12);border:1px solid rgba(61,184,122,0.25);color:#3DB87A;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600;">● Active</span>
+              </div>
+            </div>`).join('')}
+        </div>
+        <div style="margin-top:20px;">
+          <button onclick="showToast('✅ Post Ad coming soon!')" style="width:100%;background:linear-gradient(135deg,#C9A84C,#E4C46B);border:none;border-radius:12px;padding:14px;color:#060E1C;font-size:15px;font-weight:800;cursor:pointer;">+ Post New Listing</button>
+        </div>`
+    },
+    saved: {
+      en:'Saved', ku:'پاشەکەوت', ar:'المحفوظات',
+      html: `
+        <div style="text-align:center;padding:60px 20px;">
+          <div style="font-size:64px;margin-bottom:16px;">🤍</div>
+          <div style="color:#F5F2EB;font-size:16px;font-weight:700;margin-bottom:8px;">No saved listings yet</div>
+          <div style="color:#9BA4B5;font-size:13px;line-height:1.6;">Tap ❤️ on any listing to save it here for later</div>
+        </div>`
+    },
+    messages: {
+      en:'Messages', ku:'پەیامەکان', ar:'الرسائل',
+      html: `
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          ${[
+            {name:'Ahmed Al-Rashid',msg:'Is the Toyota still available?',time:'2m',emoji:'🚙',unread:true},
+            {name:'Sara Mohammed',msg:'What is the lowest price for the iPhone?',time:'1h',emoji:'📱',unread:true},
+            {name:'Karwan Jamal',msg:'OK I will come tomorrow to see it',time:'3h',emoji:'🏠',unread:false},
+          ].map(m=>`
+            <div onclick="showToast('💬 Chat feature coming soon!')" style="background:${m.unread?'rgba(201,168,76,0.07)':'rgba(255,255,255,0.03)'};border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;">
+              <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#0E2040,#162B52);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">${m.emoji}</div>
+              <div style="flex:1;min-width:0;">
+                <div style="color:#F5F2EB;font-weight:700;font-size:14px;">${m.name}</div>
+                <div style="color:#9BA4B5;font-size:12px;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${m.msg}</div>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;">
+                <span style="color:#9BA4B5;font-size:11px;">${m.time}</span>
+                ${m.unread?'<span style="width:10px;height:10px;background:#C9A84C;border-radius:50%;display:block;"></span>':''}
+              </div>
+            </div>`).join('')}
+        </div>`
+    },
+    notifications: {
+      en:'Notifications', ku:'ئاگادارکردنەوەکان', ar:'الإشعارات',
+      html: `
+        <div style="display:flex;flex-direction:column;gap:0;">
+          ${[
+            {icon:'💬',title:'New Message',desc:'Someone asked about your Toyota Land Cruiser',time:'2 min ago',unread:true},
+            {icon:'✅',title:'Listing Approved',desc:'Your BMW 5 Series listing is now live',time:'1 hour ago',unread:true},
+            {icon:'❤️',title:'Saved by Someone',desc:'3 people saved your listing today',time:'3 hours ago',unread:false},
+            {icon:'🏷️',title:'Price Drop Alert',desc:'Mercedes C300 you saved dropped in price',time:'5 hours ago',unread:false},
+            {icon:'👀',title:'New Views',desc:'Your listing got 24 new views today',time:'Yesterday',unread:false},
+          ].map(n=>`
+            <div style="padding:14px 4px;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;gap:12px;align-items:flex-start;background:${n.unread?'rgba(201,168,76,0.04)':'none'};">
+              <span style="font-size:24px;flex-shrink:0;">${n.icon}</span>
+              <div style="flex:1;">
+                <div style="color:#F5F2EB;font-size:13px;font-weight:700;margin-bottom:3px;">${n.title}</div>
+                <div style="color:#9BA4B5;font-size:12px;line-height:1.4;">${n.desc}</div>
+                <div style="color:#9BA4B5;font-size:11px;margin-top:4px;">${n.time}</div>
+              </div>
+              ${n.unread?'<div style="width:8px;height:8px;background:#C9A84C;border-radius:50%;flex-shrink:0;margin-top:4px;"></div>':''}
+            </div>`).join('')}
+        </div>`
+    },
+    faq: {
+      en:'Help & FAQ', ku:'پرسیارە باوەکان', ar:'الأسئلة الشائعة',
+      html: `
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          ${[
+            {q:'How do I post a listing?',a:'Tap the + button at the bottom. Fill in details, price, location and add photos. Then tap "Publish Listing".'},
+            {q:'Is posting free?',a:'Yes! Basic listings are completely free. Premium featured listings will be available soon.'},
+            {q:'How do I contact a seller?',a:'Open any listing and tap "Chat Now" to start a conversation with the seller directly.'},
+            {q:'Is it safe to buy on Bazira?',a:'We recommend meeting in public places. Always inspect items before paying. Never send money in advance.'},
+            {q:'Which cities are supported?',a:'Currently: Erbil, Sulaymaniyah, Duhok, Kirkuk, Baghdad and Zakho. More cities coming soon!'},
+            {q:'How do I change my language?',a:'Tap the language button (EN/كو/عر) at the top right of the home screen.'},
+            {q:'How do I report a fake listing?',a:'Open the listing, scroll down and tap "Report". Our team reviews all reports within 24 hours.'},
+            {q:'Contact us',a:'Email: support@bazira.app\nWe respond within 24 hours.'},
+          ].map((item,i)=>`
+            <div onclick="toggleFaq(this)" style="background:#0E2040;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.07);cursor:pointer;">
+              <div style="padding:14px 16px;display:flex;justify-content:space-between;align-items:center;">
+                <span style="color:#F5F2EB;font-size:13px;font-weight:600;flex:1;line-height:1.4;">${item.q}</span>
+                <span style="color:#C9A84C;font-size:18px;margin-left:10px;flex-shrink:0;">+</span>
+              </div>
+              <div class="faq-answer" style="display:none;padding:0 16px 14px;">
+                <div style="color:#9BA4B5;font-size:13px;line-height:1.6;border-top:1px solid rgba(255,255,255,0.06);padding-top:10px;">${item.a}</div>
+              </div>
+            </div>`).join('')}
+        </div>`
+    },
+    settings: {
+      en:'Settings', ku:'ڕێکخستنەکان', ar:'الإعدادات',
+      html: `
+        <div style="display:flex;flex-direction:column;gap:0;">
+          <div style="color:#9BA4B5;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:0 4px 10px;">Account</div>
+          ${[
+            {icon:'👤',label:'Edit Profile',action:"showToast('⚙️ Edit profile coming soon!')"},
+            {icon:'🔐',label:'Change Password',action:"showToast('🔐 Change password coming soon!')"},
+            {icon:'📱',label:'Phone Number',action:"showToast('📱 Phone settings coming soon!')"},
+          ].map(item=>`
+            <div onclick="${item.action}" style="display:flex;align-items:center;gap:14px;padding:14px 4px;border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer;">
+              <span style="font-size:20px;width:32px;text-align:center;">${item.icon}</span>
+              <span style="color:#F5F2EB;font-size:14px;font-weight:600;flex:1;">${item.label}</span>
+              <span style="color:#9BA4B5;">›</span>
+            </div>`).join('')}
+          <div style="color:#9BA4B5;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:20px 4px 10px;">Preferences</div>
+          ${[
+            {icon:'🌐',label:'Language',action:"showToast('🌐 Use the EN/كو/عر button on home screen')"},
+            {icon:'🔔',label:'Notifications',action:"showToast('🔔 Notification settings coming soon!')"},
+            {icon:'🌙',label:'Dark Mode',action:"showToast('🌙 Dark mode is always on!')"},
+          ].map(item=>`
+            <div onclick="${item.action}" style="display:flex;align-items:center;gap:14px;padding:14px 4px;border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer;">
+              <span style="font-size:20px;width:32px;text-align:center;">${item.icon}</span>
+              <span style="color:#F5F2EB;font-size:14px;font-weight:600;flex:1;">${item.label}</span>
+              <span style="color:#9BA4B5;">›</span>
+            </div>`).join('')}
+          <div style="margin-top:24px;">
+            <button onclick="doLogout();closeSubPage();" style="width:100%;background:rgba(201,76,76,0.12);border:1px solid rgba(201,76,76,0.3);border-radius:12px;padding:14px;color:#C94C4C;font-size:15px;font-weight:700;cursor:pointer;">Logout</button>
+          </div>
+          <div style="text-align:center;color:rgba(255,255,255,0.2);font-size:11px;margin-top:20px;">Bazira v1.0.0 · bazira.app</div>
+        </div>`
+    },
+  };
+
+  const p = pages[page];
+  if(!p) return;
+  title.textContent = p[lang] || p.en;
+  content.innerHTML = p.html;
+}
+
+function closeSubPage(){
+  document.getElementById('subPage').style.display = 'none';
+}
+
+function toggleFaq(el){
+  const answer = el.querySelector('.faq-answer');
+  const plus = el.querySelector('span:last-child');
+  const isOpen = answer.style.display === 'block';
+  answer.style.display = isOpen ? 'none' : 'block';
+  plus.textContent = isOpen ? '+' : '−';
+}
 document.querySelector('.nav-post').onclick = function(){
   if(!loggedIn){ openLogin(); showToast('⚠️ Please login to post an ad'); return; }
   showToast('✅ Post Ad feature coming soon!');
