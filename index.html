@@ -4,27 +4,29 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bazira - Kurdistan Marketplace</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:#060E1C;color:#F5F2EB;font-family:'Segoe UI',sans-serif;overflow-x:hidden;}
-.app{max-width:480px;margin:0 auto;min-height:100vh;position:relative;}
-
-/* OVERLAY / MODAL */
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;align-items:flex-end;justify-content:center;}
+.app{max-width:480px;margin:0 auto;min-height:100vh;}
+/* OVERLAY */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:500;align-items:flex-end;justify-content:center;}
 .overlay.show{display:flex;}
-.modal{background:#0E2040;border-radius:24px 24px 0 0;padding:28px 24px 40px;width:100%;max-width:480px;border-top:1px solid rgba(201,168,76,0.2);animation:slideUp 0.3s ease;}
+.modal{background:#0E2040;border-radius:24px 24px 0 0;padding:28px 24px 44px;width:100%;max-width:480px;border-top:1px solid rgba(201,168,76,0.2);animation:slideUp 0.3s ease;position:relative;max-height:90vh;overflow-y:auto;}
 @keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
-.modal-title{font-size:22px;font-weight:900;color:#F5F2EB;margin-bottom:6px;}
-.modal-sub{color:#9BA4B5;font-size:13px;margin-bottom:24px;}
-.modal input{width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:13px 16px;color:#F5F2EB;font-size:14px;outline:none;margin-bottom:12px;}
-.modal input:focus{border-color:#C9A84C;}
+.modal h2{font-size:22px;font-weight:900;margin-bottom:6px;}
+.modal p{color:#9BA4B5;font-size:13px;margin-bottom:20px;}
+.modal input,.modal textarea,.modal select{width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:13px 16px;color:#F5F2EB;font-size:14px;outline:none;margin-bottom:12px;}
+.modal input:focus,.modal textarea:focus{border-color:#C9A84C;}
+.modal textarea{resize:none;height:80px;}
+.modal select option{background:#0E2040;}
 .btn-gold{width:100%;background:linear-gradient(135deg,#C9A84C,#E4C46B);border:none;border-radius:12px;padding:14px;color:#060E1C;font-size:16px;font-weight:800;cursor:pointer;margin-bottom:10px;}
 .btn-outline{width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:14px;color:#F5F2EB;font-size:15px;font-weight:700;cursor:pointer;}
-.modal-close{position:absolute;top:16px;right:20px;background:rgba(255,255,255,0.08);border:none;border-radius:50%;width:32px;height:32px;color:#9BA4B5;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
-.modal-switch{text-align:center;color:#9BA4B5;font-size:13px;margin-top:14px;}
-.modal-switch span{color:#C9A84C;cursor:pointer;font-weight:700;}
-.modal-wrap{position:relative;}
-
+.modal-close{position:absolute;top:16px;right:16px;background:rgba(255,255,255,0.08);border:none;border-radius:50%;width:32px;height:32px;color:#9BA4B5;font-size:18px;cursor:pointer;}
+.switch-txt{text-align:center;color:#9BA4B5;font-size:13px;margin-top:12px;}
+.switch-txt span{color:#C9A84C;cursor:pointer;font-weight:700;}
+.error-msg{background:rgba(201,76,76,0.15);border:1px solid rgba(201,76,76,0.3);color:#ff6b6b;font-size:12px;padding:10px 12px;border-radius:10px;margin-bottom:12px;display:none;}
+.success-msg{background:rgba(61,184,122,0.15);border:1px solid rgba(61,184,122,0.3);color:#3DB87A;font-size:12px;padding:10px 12px;border-radius:10px;margin-bottom:12px;display:none;}
 /* HEADER */
 .header{background:#0A1628;padding:14px 16px;border-bottom:1px solid rgba(201,168,76,0.15);position:sticky;top:0;z-index:200;}
 .header-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
@@ -33,133 +35,147 @@ body{background:#060E1C;color:#F5F2EB;font-family:'Segoe UI',sans-serif;overflow
 .logo-name{font-size:18px;font-weight:900;letter-spacing:-0.5px;}
 .logo-name span{color:#C9A84C;}
 .logo-sub{font-size:8px;letter-spacing:2px;color:#8B7235;font-weight:700;}
-.header-btns{display:flex;align-items:center;gap:8px;}
-.btn-lang{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:5px 10px;color:#F5F2EB;font-size:12px;font-weight:700;cursor:pointer;position:relative;}
-.btn-login-hdr{background:linear-gradient(135deg,#C9A84C,#E4C46B);border:none;border-radius:8px;padding:6px 14px;color:#060E1C;font-size:12px;font-weight:800;cursor:pointer;}
-.btn-avatar{background:rgba(201,168,76,0.15);border:1px solid #C9A84C;border-radius:8px;padding:5px 12px;color:#C9A84C;font-size:12px;font-weight:800;cursor:pointer;}
+.hbtns{display:flex;align-items:center;gap:8px;}
+.btn-lang{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:5px 10px;color:#F5F2EB;font-size:12px;font-weight:700;cursor:pointer;}
+.btn-login-h{background:linear-gradient(135deg,#C9A84C,#E4C46B);border:none;border-radius:8px;padding:6px 14px;color:#060E1C;font-size:12px;font-weight:800;cursor:pointer;}
+.btn-avatar{background:rgba(201,168,76,0.15);border:1px solid #C9A84C;border-radius:8px;padding:5px 12px;color:#C9A84C;font-size:12px;font-weight:800;cursor:pointer;display:none;}
 .bell-btn{background:none;border:none;cursor:pointer;font-size:22px;position:relative;}
 .bell-dot{position:absolute;top:0;right:0;width:8px;height:8px;background:#C9A84C;border-radius:50%;border:2px solid #0A1628;}
-
-/* SEARCH */
-.search-bar{display:flex;align-items:center;background:rgba(255,255,255,0.06);border:1px solid rgba(201,168,76,0.2);border-radius:12px;padding:10px 14px;gap:10px;}
-.search-bar input{flex:1;background:none;border:none;outline:none;color:#F5F2EB;font-size:13px;}
-.search-bar input::placeholder{color:#9BA4B5;}
-
+.search-wrap{display:flex;align-items:center;background:rgba(255,255,255,0.06);border:1px solid rgba(201,168,76,0.2);border-radius:12px;padding:10px 14px;gap:10px;}
+.search-wrap input{flex:1;background:none;border:none;outline:none;color:#F5F2EB;font-size:13px;}
+.search-wrap input::placeholder{color:#9BA4B5;}
 /* LANG MENU */
-.lang-menu{display:none;position:absolute;top:calc(100% + 6px);right:0;background:#0E2040;border:1px solid rgba(201,168,76,0.2);border-radius:12px;overflow:hidden;z-index:300;min-width:160px;box-shadow:0 8px 32px rgba(0,0,0,0.5);}
-.lang-menu.show{display:block;}
-.lang-opt{padding:12px 16px;cursor:pointer;color:#F5F2EB;font-size:14px;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;justify-content:space-between;align-items:center;}
-.lang-opt:hover{background:rgba(201,168,76,0.1);}
-.lang-opt.active{color:#C9A84C;font-weight:700;}
-
-/* NOTIF PANEL */
-.notif-panel{display:none;position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;height:100%;background:#0A1628;z-index:600;overflow-y:auto;transition:transform 0.3s ease;}
-.notif-panel.show{display:block;}
-.notif-header{background:#0E2040;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(201,168,76,0.1);position:sticky;top:0;}
-.notif-item{padding:14px 20px;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;gap:12px;align-items:flex-start;}
-.notif-item.unread{background:rgba(201,168,76,0.05);}
-.notif-icon{font-size:24px;flex-shrink:0;}
-.notif-body{}
-.notif-title{color:#F5F2EB;font-size:13px;font-weight:700;margin-bottom:3px;}
-.notif-desc{color:#9BA4B5;font-size:12px;line-height:1.4;}
-.notif-time{color:#9BA4B5;font-size:11px;margin-top:4px;}
-.notif-dot{width:8px;height:8px;background:#C9A84C;border-radius:50%;flex-shrink:0;margin-top:4px;}
-
+.lang-dd{display:none;position:fixed;top:60px;right:calc(50% - 200px);background:#0E2040;border:1px solid rgba(201,168,76,0.2);border-radius:12px;z-index:999;min-width:160px;box-shadow:0 8px 32px rgba(0,0,0,0.5);overflow:hidden;}
+.lang-dd.show{display:block;}
+.lang-opt{padding:12px 16px;cursor:pointer;color:#F5F2EB;font-size:14px;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;justify-content:space-between;}
+.lang-opt:hover,.lang-opt.active{background:rgba(201,168,76,0.1);color:#C9A84C;}
+/* FULLPAGE */
+.fullpage{display:none;position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;height:100%;background:#060E1C;z-index:600;overflow-y:auto;}
+.fullpage.show{display:block;}
+.fp-header{background:#0E2040;padding:16px 20px;display:flex;align-items:center;gap:14px;border-bottom:1px solid rgba(201,168,76,0.12);position:sticky;top:0;z-index:10;}
+.fp-back{background:none;border:none;color:#C9A84C;font-size:15px;font-weight:700;cursor:pointer;}
+.fp-title{color:#F5F2EB;font-weight:800;font-size:16px;}
 /* HERO */
-.hero{background:linear-gradient(160deg,#0E2040 0%,#0A1628 100%);padding:24px 20px;}
+.hero{background:linear-gradient(160deg,#0E2040,#0A1628);padding:24px 20px;}
 .hero-tag{color:#8B7235;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
-.hero-title{font-size:28px;font-weight:900;line-height:1.2;margin-bottom:8px;}
+.hero-h{font-size:26px;font-weight:900;line-height:1.2;margin-bottom:8px;}
 .hero-sub{color:#9BA4B5;font-size:13px;margin-bottom:18px;}
 .hero-stats{display:flex;gap:24px;}
-.stat-val{color:#C9A84C;font-size:18px;font-weight:900;}
-.stat-lbl{color:#9BA4B5;font-size:11px;}
-
+.s-val{color:#C9A84C;font-size:18px;font-weight:900;}
+.s-lbl{color:#9BA4B5;font-size:11px;}
 /* PILLS */
 .pills{display:flex;gap:8px;overflow-x:auto;padding:12px 16px 4px;scrollbar-width:none;}
 .pills::-webkit-scrollbar{display:none;}
-.pill{flex-shrink:0;padding:8px 14px;border-radius:24px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);color:#9BA4B5;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;}
+.pill{flex-shrink:0;padding:7px 13px;border-radius:24px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);color:#9BA4B5;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;}
 .pill.active{background:linear-gradient(135deg,#C9A84C,#E4C46B);border-color:transparent;color:#060E1C;}
-
 /* CAT GRID */
-.cat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:16px;}
-.cat-item{border-radius:14px;padding:14px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;transition:transform 0.2s;border:1px solid rgba(255,255,255,0.06);}
+.cat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:14px 16px;}
+.cat-item{border-radius:14px;padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;transition:transform 0.2s;border:1px solid rgba(255,255,255,0.06);}
 .cat-item:hover{transform:translateY(-2px);}
-.cat-icon{font-size:26px;}
-.cat-label{color:#F5F2EB;font-size:9px;font-weight:700;text-align:center;}
-
-/* CARDS */
-.section-header{display:flex;justify-content:space-between;align-items:center;padding:0 16px;margin-bottom:12px;}
-.section-title{color:#F5F2EB;font-weight:800;font-size:15px;}
+.cat-icon{font-size:24px;}
+.cat-lbl{color:#F5F2EB;font-size:9px;font-weight:700;text-align:center;}
+/* SECTION */
+.sec-header{display:flex;justify-content:space-between;align-items:center;padding:0 16px;margin-bottom:10px;}
+.sec-title{color:#F5F2EB;font-weight:800;font-size:15px;}
 .view-all{color:#C9A84C;font-size:12px;font-weight:700;background:none;border:none;cursor:pointer;}
-.featured-scroll{display:flex;gap:14px;overflow-x:auto;padding:0 16px 8px;scrollbar-width:none;}
-.featured-scroll::-webkit-scrollbar{display:none;}
-.listings-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:16px;padding-bottom:100px;}
-.card{background:linear-gradient(145deg,#0E2040,#0A1628);border:1px solid rgba(201,168,76,0.15);border-radius:16px;overflow:hidden;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;}
-.card:hover{transform:translateY(-3px);box-shadow:0 16px 40px rgba(0,0,0,0.5);}
-.card-img{height:140px;background:linear-gradient(135deg,#0a1628,#162B52);display:flex;align-items:center;justify-content:center;font-size:60px;position:relative;}
-.badge-featured{position:absolute;top:10px;left:10px;background:linear-gradient(90deg,#C9A84C,#E4C46B);color:#060E1C;font-size:9px;font-weight:800;padding:3px 8px;border-radius:20px;letter-spacing:1px;}
-.badge-verified{position:absolute;top:10px;right:10px;background:rgba(61,184,122,0.2);border:1px solid #3DB87A;color:#3DB87A;font-size:9px;font-weight:700;padding:3px 8px;border-radius:20px;}
-.card-body{padding:12px;}
-.card-title{color:#F5F2EB;font-size:12px;font-weight:700;margin-bottom:4px;line-height:1.3;}
-.card-price{color:#C9A84C;font-size:16px;font-weight:900;margin-bottom:8px;}
-.card-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;}
-.tag{background:rgba(255,255,255,0.06);color:#9BA4B5;font-size:10px;padding:2px 8px;border-radius:20px;}
+.feat-scroll{display:flex;gap:12px;overflow-x:auto;padding:0 16px 8px;scrollbar-width:none;}
+.feat-scroll::-webkit-scrollbar{display:none;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 16px 100px;}
+/* CARD */
+.card{background:linear-gradient(145deg,#0E2040,#0A1628);border:1px solid rgba(201,168,76,0.15);border-radius:16px;overflow:hidden;cursor:pointer;transition:transform 0.2s;}
+.card:hover{transform:translateY(-2px);}
+.card-img{height:130px;background:linear-gradient(135deg,#0a1628,#162B52);display:flex;align-items:center;justify-content:center;font-size:56px;position:relative;}
+.badge-f{position:absolute;top:8px;left:8px;background:linear-gradient(90deg,#C9A84C,#E4C46B);color:#060E1C;font-size:9px;font-weight:800;padding:2px 7px;border-radius:20px;}
+.badge-v{position:absolute;top:8px;right:8px;background:rgba(61,184,122,0.2);border:1px solid #3DB87A;color:#3DB87A;font-size:9px;padding:2px 7px;border-radius:20px;}
+.card-body{padding:10px 12px 12px;}
+.card-title{color:#F5F2EB;font-size:11px;font-weight:700;margin-bottom:4px;line-height:1.3;}
+.card-price{color:#C9A84C;font-size:15px;font-weight:900;margin-bottom:6px;}
+.card-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px;}
+.tag{background:rgba(255,255,255,0.06);color:#9BA4B5;font-size:10px;padding:2px 7px;border-radius:20px;}
 .tag.new{background:rgba(61,184,122,0.1);color:#3DB87A;}
 .tag.damaged{background:rgba(201,76,76,0.1);color:#C94C4C;}
 .card-city{color:#9BA4B5;font-size:11px;}
-
 /* BOTTOM NAV */
-.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:linear-gradient(0deg,#060E1C 80%,transparent);padding:12px 16px 20px;z-index:200;}
-.nav-inner{background:#0A1628;border:1px solid rgba(201,168,76,0.15);border-radius:20px;padding:10px 16px;display:flex;justify-content:space-around;align-items:center;box-shadow:0 -4px 24px rgba(0,0,0,0.6);}
-.nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 8px;background:none;border:none;}
-.nav-item.active .nav-lbl{color:#C9A84C;}
-.nav-icon{font-size:20px;}
+.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:linear-gradient(0deg,#060E1C 80%,transparent);padding:10px 16px 18px;z-index:200;}
+.bnav-inner{background:#0A1628;border:1px solid rgba(201,168,76,0.15);border-radius:20px;padding:8px 14px;display:flex;justify-content:space-around;align-items:center;box-shadow:0 -4px 24px rgba(0,0,0,0.6);}
+.nav-btn{display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px 8px;background:none;border:none;}
+.nav-btn.active .nav-lbl{color:#C9A84C;}
+.nav-ico{font-size:20px;}
 .nav-lbl{font-size:9px;color:#9BA4B5;font-weight:600;}
 .nav-post{background:linear-gradient(135deg,#C9A84C,#E4C46B);border-radius:14px;padding:8px 14px;border:none;cursor:pointer;box-shadow:0 4px 16px rgba(201,168,76,0.4);}
-
-/* PROFILE PANEL */
-.profile-panel{display:none;position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;height:100%;background:#060E1C;z-index:600;overflow-y:auto;}
-.profile-panel.show{display:block;}
-.profile-header-bg{background:linear-gradient(160deg,#0E2040,#0A1628);padding:20px 20px 24px;}
-.profile-avatar{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#C9A84C,#E4C46B);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:900;color:#060E1C;}
-.profile-name{color:#F5F2EB;font-weight:800;font-size:18px;margin-top:10px;}
-.profile-email{color:#9BA4B5;font-size:12px;margin-top:2px;}
-.profile-stats{display:flex;background:rgba(255,255,255,0.04);border-radius:12px;overflow:hidden;margin-top:16px;}
-.p-stat{flex:1;text-align:center;padding:12px 8px;border-right:1px solid rgba(255,255,255,0.06);}
-.p-stat:last-child{border-right:none;}
-.p-stat-val{color:#C9A84C;font-weight:900;font-size:18px;}
-.p-stat-lbl{color:#9BA4B5;font-size:10px;margin-top:2px;}
-.menu-item{display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer;}
-.menu-icon{font-size:20px;width:32px;text-align:center;}
-.menu-label{color:#F5F2EB;font-size:14px;font-weight:600;flex:1;}
-.menu-arrow{color:#9BA4B5;font-size:16px;}
-.btn-logout{margin:20px;width:calc(100% - 40px);background:rgba(201,76,76,0.12);border:1px solid rgba(201,76,76,0.3);border-radius:12px;padding:14px;color:#C94C4C;font-size:15px;font-weight:700;cursor:pointer;}
-
-/* DETAIL PANEL */
-.detail-panel{display:none;position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;height:100%;background:#060E1C;z-index:600;overflow-y:auto;}
-.detail-panel.show{display:block;}
-.detail-hero{height:260px;background:linear-gradient(135deg,#0E2040,#162B52);display:flex;align-items:center;justify-content:center;font-size:100px;position:relative;}
-.back-btn{position:absolute;top:16px;left:16px;background:rgba(10,22,40,0.8);border:none;border-radius:20px;padding:8px 14px;color:#C9A84C;font-size:14px;font-weight:700;cursor:pointer;}
-.detail-content{padding:20px;}
-.detail-title{color:#F5F2EB;font-size:20px;font-weight:800;margin-bottom:6px;}
-.detail-price{color:#C9A84C;font-size:28px;font-weight:900;margin-bottom:14px;}
-.detail-city{color:#9BA4B5;font-size:13px;margin-bottom:16px;}
-.desc-box{background:rgba(255,255,255,0.04);border-radius:12px;padding:14px;margin-bottom:16px;border:1px solid rgba(255,255,255,0.07);}
-.desc-title{color:#F5F2EB;font-weight:700;font-size:13px;margin-bottom:6px;}
-.desc-txt{color:#9BA4B5;font-size:13px;line-height:1.6;}
-.seller-box{background:#0E2040;border-radius:12px;padding:14px;display:flex;align-items:center;gap:12px;border:1px solid rgba(201,168,76,0.15);margin-bottom:100px;}
-.seller-avatar{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#C9A84C,#E4C46B);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;color:#060E1C;}
-.seller-name{color:#F5F2EB;font-weight:700;font-size:14px;}
-.seller-sub{color:#9BA4B5;font-size:11px;margin-top:2px;}
-.detail-cta{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#060E1C;padding:16px 20px;display:flex;gap:12px;border-top:1px solid rgba(255,255,255,0.06);}
-.btn-chat{flex:1;background:linear-gradient(135deg,#C9A84C,#E4C46B);border:none;border-radius:12px;height:52px;color:#060E1C;font-size:15px;font-weight:800;cursor:pointer;}
-.btn-call{width:52px;height:52px;border-radius:12px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);cursor:pointer;font-size:20px;}
-
 /* TOAST */
-.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#0E2040;border:1px solid rgba(201,168,76,0.3);border-radius:12px;padding:12px 20px;color:#F5F2EB;font-size:13px;font-weight:600;z-index:999;display:none;animation:fadeIn 0.3s ease;}
-.toast.show{display:block;}
-@keyframes fadeIn{from{opacity:0;transform:translateX(-50%) translateY(10px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}
-
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#0E2040;border:1px solid rgba(201,168,76,0.3);border-radius:12px;padding:11px 20px;color:#F5F2EB;font-size:13px;font-weight:600;z-index:999;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap;}
+.toast.show{opacity:1;}
+/* PROFILE */
+.prof-bg{background:linear-gradient(160deg,#0E2040,#0A1628);padding:20px 20px 24px;}
+.prof-av{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#C9A84C,#E4C46B);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:900;color:#060E1C;}
+.prof-name{color:#F5F2EB;font-weight:800;font-size:18px;margin-top:10px;}
+.prof-email{color:#9BA4B5;font-size:12px;margin-top:2px;}
+.prof-stats{display:flex;background:rgba(255,255,255,0.04);border-radius:12px;overflow:hidden;margin-top:14px;}
+.ps{flex:1;text-align:center;padding:12px 8px;border-right:1px solid rgba(255,255,255,0.06);}
+.ps:last-child{border-right:none;}
+.ps-val{color:#C9A84C;font-weight:900;font-size:18px;}
+.ps-lbl{color:#9BA4B5;font-size:10px;margin-top:2px;}
+.menu-row{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer;}
+.menu-ico{font-size:20px;width:28px;text-align:center;}
+.menu-lbl{color:#F5F2EB;font-size:14px;font-weight:600;flex:1;}
+.btn-logout{margin:20px;width:calc(100%-40px);background:rgba(201,76,76,0.1);border:1px solid rgba(201,76,76,0.25);border-radius:12px;padding:13px;color:#C94C4C;font-size:15px;font-weight:700;cursor:pointer;width:calc(100% - 40px);}
+/* DETAIL */
+.det-hero{height:240px;background:linear-gradient(135deg,#0E2040,#162B52);display:flex;align-items:center;justify-content:center;font-size:90px;position:relative;}
+.det-content{padding:18px 20px;}
+.det-title{color:#F5F2EB;font-size:20px;font-weight:800;margin-bottom:6px;}
+.det-price{color:#C9A84C;font-size:26px;font-weight:900;margin-bottom:12px;}
+.det-city{color:#9BA4B5;font-size:13px;margin-bottom:14px;}
+.desc-box{background:rgba(255,255,255,0.04);border-radius:12px;padding:14px;margin-bottom:14px;}
+.desc-t{color:#F5F2EB;font-weight:700;font-size:13px;margin-bottom:6px;}
+.desc-b{color:#9BA4B5;font-size:13px;line-height:1.6;}
+.seller-row{background:#0E2040;border-radius:12px;padding:14px;display:flex;align-items:center;gap:12px;border:1px solid rgba(201,168,76,0.15);margin-bottom:120px;}
+.s-av{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#C9A84C,#E4C46B);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#060E1C;}
+.det-cta{position:sticky;bottom:0;background:#060E1C;padding:14px 20px;display:flex;gap:12px;border-top:1px solid rgba(255,255,255,0.06);}
+.btn-chat-main{flex:1;background:linear-gradient(135deg,#C9A84C,#E4C46B);border:none;border-radius:12px;height:50px;color:#060E1C;font-size:15px;font-weight:800;cursor:pointer;}
+.btn-call-main{width:50px;height:50px;border-radius:12px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);cursor:pointer;font-size:20px;}
+/* CHAT PAGE */
+.chat-msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;min-height:400px;}
+.bubble{max-width:75%;padding:10px 14px;border-radius:16px;font-size:13px;line-height:1.5;}
+.bubble.me{align-self:flex-end;background:linear-gradient(135deg,#C9A84C,#E4C46B);color:#060E1C;border-bottom-right-radius:4px;}
+.bubble.them{align-self:flex-start;background:rgba(255,255,255,0.08);color:#F5F2EB;border-bottom-left-radius:4px;}
+.bubble-time{font-size:10px;opacity:0.6;margin-top:3px;}
+.chat-input-row{display:flex;gap:8px;padding:12px 16px 20px;border-top:1px solid rgba(255,255,255,0.06);}
+.chat-input-row input{flex:1;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:11px 14px;color:#F5F2EB;font-size:13px;outline:none;}
+.chat-send{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#C9A84C,#E4C46B);border:none;cursor:pointer;font-size:18px;}
+/* POST AD */
+.step-bar{display:flex;gap:6px;padding:0 20px 14px;}
+.step{flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,0.1);}
+.step.done{background:linear-gradient(90deg,#C9A84C,#E4C46B);}
+.step-lbl{color:#9BA4B5;font-size:12px;text-align:center;padding-bottom:8px;}
+.post-section{padding:20px 20px 0;}
+.post-section h3{color:#F5F2EB;font-size:18px;font-weight:800;margin-bottom:6px;}
+.post-section p{color:#9BA4B5;font-size:13px;margin-bottom:18px;}
+.cond-btns{display:flex;gap:8px;margin-bottom:14px;}
+.cond-btn{flex:1;padding:11px 8px;border-radius:10px;cursor:pointer;border:1.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:#9BA4B5;font-size:13px;font-weight:700;}
+.cond-btn.active{border-color:#C9A84C;background:rgba(201,168,76,0.12);color:#C9A84C;}
+.city-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
+.city-btn{padding:10px;border-radius:10px;cursor:pointer;border:1.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:#9BA4B5;font-size:12px;font-weight:600;text-align:center;}
+.city-btn.active{border-color:#C9A84C;background:rgba(201,168,76,0.12);color:#C9A84C;}
+.photo-grid{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px;}
+.photo-slot{width:calc(33.33% - 7px);aspect-ratio:1;border-radius:12px;background:rgba(255,255,255,0.04);border:1.5px dashed rgba(201,168,76,0.3);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font-size:24px;}
+.photo-slot.filled{border-style:solid;border-color:#C9A84C;overflow:hidden;position:relative;}
+.photo-slot img{width:100%;height:100%;object-fit:cover;}
+.photo-slot .rm{position:absolute;top:3px;right:3px;background:rgba(0,0,0,0.7);border:none;border-radius:50%;width:20px;height:20px;color:white;font-size:12px;cursor:pointer;}
+.inp-lbl{color:#9BA4B5;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:6px;display:block;}
+/* MESSAGES LIST */
+.msg-row{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer;}
+.msg-av{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#0E2040,#162B52);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.msg-unread{width:10px;height:10px;background:#C9A84C;border-radius:50%;flex-shrink:0;}
+/* EMPTY STATE */
+.empty{text-align:center;padding:60px 20px;}
+.empty-ico{font-size:56px;margin-bottom:14px;}
+.empty-t{color:#F5F2EB;font-size:16px;font-weight:700;margin-bottom:6px;}
+.empty-s{color:#9BA4B5;font-size:13px;line-height:1.5;}
+/* LOADING */
+.loading{display:flex;align-items:center;justify-content:center;padding:40px;color:#9BA4B5;gap:10px;}
+.spinner{width:20px;height:20px;border:2px solid rgba(201,168,76,0.3);border-top-color:#C9A84C;border-radius:50%;animation:spin 0.8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
 /* RTL */
 .rtl{direction:rtl;}
 </style>
@@ -167,244 +183,277 @@ body{background:#060E1C;color:#F5F2EB;font-family:'Segoe UI',sans-serif;overflow
 <body>
 <div class="app" id="app">
 
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- LANG DROPDOWN -->
+<div class="lang-dd" id="langDd">
+  <div class="lang-opt active" id="lo-en" onclick="setLang('en')">🇬🇧 English <span>✓</span></div>
+  <div class="lang-opt" id="lo-ku" onclick="setLang('ku')">🟡 کوردی</div>
+  <div class="lang-opt" id="lo-ar" onclick="setLang('ar')">🟢 العربية</div>
+</div>
+
 <!-- LOGIN MODAL -->
-<div class="overlay" id="loginOverlay" onclick="closeLoginOnBg(event)">
-  <div class="modal modal-wrap">
-    <button class="modal-close" onclick="closeModal('loginOverlay')">✕</button>
-    <div id="loginForm">
-      <div class="modal-title" id="loginTitle">Welcome Back 👋</div>
-      <div class="modal-sub" id="loginSub">Login to your Bazira account</div>
-      <input type="email" id="loginEmail" placeholder="Email address">
-      <input type="password" id="loginPass" placeholder="Password">
-      <button class="btn-gold" onclick="doLogin()">Login</button>
-      <button class="btn-outline" onclick="switchToRegister()">Create Account</button>
-      <div class="modal-switch">Don't have an account? <span onclick="switchToRegister()">Register</span></div>
-    </div>
-    <div id="registerForm" style="display:none">
-      <div class="modal-title">Create Account 🚀</div>
-      <div class="modal-sub">Join Bazira marketplace today</div>
-      <input type="text" id="regName" placeholder="Full name">
-      <input type="email" id="regEmail" placeholder="Email address">
-      <input type="tel" id="regPhone" placeholder="Phone number">
-      <input type="password" id="regPass" placeholder="Password">
-      <button class="btn-gold" onclick="doRegister()">Create Account</button>
-      <div class="modal-switch">Already have an account? <span onclick="switchToLogin()">Login</span></div>
-    </div>
+<div class="overlay" id="authOverlay" onclick="bgClose(event,'authOverlay')">
+<div class="modal">
+  <button class="modal-close" onclick="closeOverlay('authOverlay')">✕</button>
+  <div id="loginView">
+    <h2 id="loginH">Welcome Back 👋</h2>
+    <p id="loginP">Login to your Bazira account</p>
+    <div class="error-msg" id="loginErr"></div>
+    <div class="success-msg" id="loginSuc"></div>
+    <input type="email" id="lEmail" placeholder="Email address">
+    <input type="password" id="lPass" placeholder="Password">
+    <button class="btn-gold" onclick="doLogin()" id="loginBtn2">Login</button>
+    <button class="btn-outline" onclick="showRegister()">Create Account</button>
+    <div class="switch-txt">No account? <span onclick="showRegister()">Register free</span></div>
+  </div>
+  <div id="registerView" style="display:none">
+    <h2>Create Account 🚀</h2>
+    <p>Join Bazira marketplace today</p>
+    <div class="error-msg" id="regErr"></div>
+    <input type="text" id="rName" placeholder="Full name">
+    <input type="email" id="rEmail" placeholder="Email address">
+    <input type="tel" id="rPhone" placeholder="Phone number (optional)">
+    <input type="password" id="rPass" placeholder="Password (min 6 chars)">
+    <button class="btn-gold" onclick="doRegister()" id="regBtn">Create Account</button>
+    <div class="switch-txt">Have account? <span onclick="showLogin()">Login</span></div>
   </div>
 </div>
-
-<!-- LANG MENU (outside header for z-index) -->
-<div id="langMenuGlobal" class="lang-menu" style="position:fixed;top:60px;right:calc(50% - 200px);z-index:999;">
-  <div class="lang-opt active" id="langEn" onclick="setLang('en')">🇬🇧 English <span>✓</span></div>
-  <div class="lang-opt" id="langKu" onclick="setLang('ku')">🟡 کوردی</div>
-  <div class="lang-opt" id="langAr" onclick="setLang('ar')">🟢 العربية</div>
 </div>
 
-<!-- NOTIF PANEL -->
-<div class="notif-panel" id="notifPanel">
-  <div class="notif-header">
-    <span style="color:#F5F2EB;font-weight:800;font-size:16px" id="notifTitle">🔔 Notifications</span>
-    <button onclick="toggleNotif()" style="background:none;border:none;color:#9BA4B5;font-size:22px;cursor:pointer">✕</button>
+<!-- POST AD OVERLAY -->
+<div class="overlay" id="postOverlay" onclick="bgClose(event,'postOverlay')">
+<div class="modal" style="padding-top:20px;">
+  <button class="modal-close" onclick="closeOverlay('postOverlay')">✕</button>
+  <div class="step-bar" id="stepBar">
+    <div class="step done"></div><div class="step"></div><div class="step"></div><div class="step"></div>
   </div>
-  <div class="notif-item unread">
-    <span class="notif-icon">💬</span>
-    <div class="notif-body">
-      <div class="notif-title">New Message</div>
-      <div class="notif-desc">Someone asked about your Toyota Land Cruiser</div>
-      <div class="notif-time">2 minutes ago</div>
-    </div>
-    <div class="notif-dot"></div>
+  <div class="step-lbl" id="stepLbl">Step 1: Category</div>
+
+  <!-- Step 1: Category -->
+  <div id="postS1" class="post-section">
+    <h3>Select Category</h3>
+    <p>What are you selling?</p>
+    <div class="cat-grid" id="postCatGrid"></div>
   </div>
-  <div class="notif-item unread">
-    <span class="notif-icon">✅</span>
-    <div class="notif-body">
-      <div class="notif-title">Listing Approved</div>
-      <div class="notif-desc">Your BMW 5 Series listing is now live</div>
-      <div class="notif-time">1 hour ago</div>
+
+  <!-- Step 2: Details -->
+  <div id="postS2" class="post-section" style="display:none">
+    <h3>Add Details</h3>
+    <p>Tell buyers about your item</p>
+    <label class="inp-lbl">Title *</label>
+    <input id="pTitle" placeholder="e.g. Toyota Land Cruiser 2022">
+    <label class="inp-lbl">Description *</label>
+    <textarea id="pDesc" placeholder="Describe the condition, features..."></textarea>
+    <label class="inp-lbl">Condition</label>
+    <div class="cond-btns">
+      <button class="cond-btn active" onclick="selCond('new',this)">🟢 New</button>
+      <button class="cond-btn" onclick="selCond('used',this)">🟡 Used</button>
+      <button class="cond-btn" onclick="selCond('damaged',this)">🔴 Damaged</button>
     </div>
-    <div class="notif-dot"></div>
+    <button class="btn-gold" onclick="goStep(3)">Continue →</button>
   </div>
-  <div class="notif-item">
-    <span class="notif-icon">❤️</span>
-    <div class="notif-body">
-      <div class="notif-title">Saved by Someone</div>
-      <div class="notif-desc">3 people saved your listing today</div>
-      <div class="notif-time">3 hours ago</div>
-    </div>
+
+  <!-- Step 3: Price & City -->
+  <div id="postS3" class="post-section" style="display:none">
+    <h3>Price & Location</h3>
+    <label class="inp-lbl">Price (IQD) *</label>
+    <input type="number" id="pPrice" placeholder="0" style="color:#C9A84C;font-size:18px;font-weight:700;">
+    <label class="inp-lbl" style="margin-top:4px;">City *</label>
+    <div class="city-grid" id="postCityGrid"></div>
+    <button class="btn-gold" onclick="goStep(4)" style="margin-top:8px;">Continue →</button>
   </div>
-  <div class="notif-item">
-    <span class="notif-icon">🏷️</span>
-    <div class="notif-body">
-      <div class="notif-title">Price Drop Alert</div>
-      <div class="notif-desc">Mercedes C300 you saved dropped in price</div>
-      <div class="notif-time">5 hours ago</div>
+
+  <!-- Step 4: Photos -->
+  <div id="postS4" class="post-section" style="display:none">
+    <h3>Add Photos</h3>
+    <p>Upload up to 6 photos</p>
+    <div class="photo-grid" id="photoGrid">
+      <div class="photo-slot" onclick="addPhoto()">📷<span style="font-size:10px;color:#C9A84C;margin-top:4px;">Add Photo</span></div>
     </div>
+    <input type="file" id="photoInput" accept="image/*" multiple style="display:none" onchange="handlePhotos(this)">
+    <div class="error-msg" id="postErr"></div>
+    <button class="btn-gold" onclick="submitListing()" id="publishBtn" style="margin-top:8px;">🚀 Publish Listing</button>
   </div>
 </div>
-
-<!-- PROFILE PANEL -->
-<div class="profile-panel" id="profilePanel">
-  <div class="profile-header-bg">
-    <button onclick="closeProfile()" style="background:none;border:none;color:#C9A84C;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:16px;">← <span id="backTxt">Back</span></button>
-    <div style="display:flex;align-items:center;gap:16px;">
-      <div class="profile-avatar" id="profileAvatar">K</div>
-      <div>
-        <div class="profile-name" id="profileName">Karwan Ahmed</div>
-        <div class="profile-email" id="profileEmail">karwan@bazira.app</div>
-        <div style="color:#C9A84C;font-size:12px;margin-top:4px;">⭐⭐⭐⭐⭐ 4.8 · Member since 2025</div>
-      </div>
-    </div>
-    <div class="profile-stats">
-      <div class="p-stat"><div class="p-stat-val">3</div><div class="p-stat-lbl" id="myListTxt">My Listings</div></div>
-      <div class="p-stat"><div class="p-stat-val">0</div><div class="p-stat-lbl" id="savedTxt2">Saved</div></div>
-      <div class="p-stat"><div class="p-stat-val">12</div><div class="p-stat-lbl" id="msgTxt">Messages</div></div>
-    </div>
-  </div>
-  <div class="menu-item" onclick="openSubPage('mylistings')"><span class="menu-icon">🗂️</span><span class="menu-label" id="myListMenuTxt">My Listings</span><span class="menu-arrow">›</span></div>
-  <div class="menu-item" onclick="openSubPage('saved')"><span class="menu-icon">❤️</span><span class="menu-label" id="savedMenuTxt">Saved</span><span class="menu-arrow">›</span></div>
-  <div class="menu-item" onclick="openSubPage('messages')"><span class="menu-icon">💬</span><span class="menu-label" id="msgMenuTxt">Messages</span><span class="menu-arrow">›</span></div>
-  <div class="menu-item" onclick="openSubPage('notifications')"><span class="menu-icon">🔔</span><span class="menu-label" id="notifMenuTxt">Notifications</span><span class="menu-arrow">›</span></div>
-  <div class="menu-item" onclick="openSubPage('faq')"><span class="menu-icon">❓</span><span class="menu-label">Help & FAQ</span><span class="menu-arrow">›</span></div>
-  <div class="menu-item" onclick="openSubPage('settings')"><span class="menu-icon">⚙️</span><span class="menu-label">Settings</span><span class="menu-arrow">›</span></div>
-  <button class="btn-logout" id="logoutBtn" onclick="doLogout()">Logout</button>
-</div>
-
-<!-- DETAIL PANEL -->
-<div class="detail-panel" id="detailPanel">
-  <div class="detail-hero" id="detailHero">
-    <button class="back-btn" onclick="closeDetail()">← Back</button>
-    <span id="detailEmoji" style="font-size:100px"></span>
-    <div id="detailFeaturedBadge" style="display:none;position:absolute;bottom:14px;left:14px;background:linear-gradient(90deg,#C9A84C,#E4C46B);color:#060E1C;font-size:10px;font-weight:800;padding:4px 12px;border-radius:20px;letter-spacing:1px;">FEATURED</div>
-  </div>
-  <div class="detail-content">
-    <div class="detail-title" id="detailTitle"></div>
-    <div class="detail-price" id="detailPrice"></div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;" id="detailTags"></div>
-    <div class="detail-city" id="detailCity"></div>
-    <div class="desc-box">
-      <div class="desc-title" id="descTitleTxt">Description</div>
-      <div class="desc-txt" id="detailDesc"></div>
-    </div>
-    <div class="seller-box">
-      <div class="seller-avatar">K</div>
-      <div>
-        <div class="seller-name">Karwan Ahmed</div>
-        <div class="seller-sub">⭐⭐⭐⭐⭐ 4.8 · 42 sales</div>
-      </div>
-      <div style="margin-left:auto;background:rgba(61,184,122,0.15);border:1px solid rgba(61,184,122,0.3);color:#3DB87A;font-size:11px;padding:4px 10px;border-radius:20px;">● Online</div>
-    </div>
-  </div>
-  <div class="detail-cta">
-    <button class="btn-chat" onclick="showToast('💬 Chat opened!')">💬 <span id="chatNowTxt">Chat Now</span></button>
-    <button class="btn-call" onclick="showToast('📞 Calling...')">📞</button>
-  </div>
-</div>
-
-<!-- SUBPAGE PANEL -->
-<div id="subPage" style="display:none;position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;height:100%;background:#060E1C;z-index:700;overflow-y:auto;">
-  <div style="background:#0E2040;padding:16px 20px;display:flex;align-items:center;gap:14px;border-bottom:1px solid rgba(201,168,76,0.15);position:sticky;top:0;">
-    <button onclick="closeSubPage()" style="background:none;border:none;color:#C9A84C;font-size:15px;font-weight:700;cursor:pointer;">← Back</button>
-    <span id="subPageTitle" style="color:#F5F2EB;font-weight:800;font-size:16px;"></span>
-  </div>
-  <div id="subPageContent" style="padding:20px;"></div>
 </div>
 
 <!-- HEADER -->
-<div class="header" id="mainHeader">
+<div class="header">
   <div class="header-row">
-    <div class="logo" onclick="setTab('home')">
+    <div class="logo" onclick="showHome()">
       <div class="logo-box">B</div>
       <div>
         <div class="logo-name">BAZIRA<span>.</span></div>
         <div class="logo-sub">MARKETPLACE</div>
       </div>
     </div>
-    <div class="header-btns">
-      <div style="position:relative;">
-        <button class="btn-lang" id="langBtn" onclick="toggleLangMenu()">EN ›</button>
-      </div>
-      <button class="btn-login-hdr" id="loginBtn" onclick="openLogin()">Login</button>
-      <button class="btn-avatar" id="avatarBtn" style="display:none" onclick="openProfile()">👤 K</button>
-      <button class="bell-btn" onclick="toggleNotif()">🔔<div class="bell-dot"></div></button>
+    <div class="hbtns">
+      <button class="btn-lang" id="langBtn" onclick="toggleLang()">EN ›</button>
+      <button class="btn-login-h" id="loginHBtn" onclick="openAuth()">Login</button>
+      <button class="btn-avatar" id="avatarBtn" onclick="showProfile()"></button>
+      <button class="bell-btn" onclick="showPage('notifPage')">🔔<div class="bell-dot" id="bellDot" style="display:none"></div></button>
     </div>
   </div>
-  <div class="search-bar">
+  <div class="search-wrap">
     <span>🔍</span>
-    <input type="text" id="searchInput" placeholder="Search cars, phones, electronics..." oninput="render()">
-    <span id="clearSearch" style="cursor:pointer;color:#9BA4B5;display:none" onclick="clearSearch()">✕</span>
+    <input type="text" id="searchIn" placeholder="Search cars, phones, electronics..." oninput="onSearch()">
+    <span id="clearBtn" style="cursor:pointer;color:#9BA4B5;display:none" onclick="clearSearch()">✕</span>
   </div>
 </div>
 
-<!-- MAIN CONTENT -->
+<!-- HOME SCREEN -->
 <div id="homeScreen">
-  <!-- Hero -->
   <div class="hero">
-    <div class="hero-tag" id="heroTag">KURDISTAN'S PREMIER MARKETPLACE</div>
-    <h1 class="hero-title" id="heroTitle">Find Everything,<br>Sell Anything 🛍️</h1>
-    <p class="hero-sub" id="heroSub">Trusted marketplace for Kurdistan & Iraq</p>
+    <div class="hero-tag" id="hTag">KURDISTAN'S PREMIER MARKETPLACE</div>
+    <h1 class="hero-h" id="hTitle">Find Everything,<br>Sell Anything 🛍️</h1>
+    <p class="hero-sub" id="hSub">Trusted marketplace for Kurdistan & Iraq</p>
     <div class="hero-stats">
-      <div><div class="stat-val">50K+</div><div class="stat-lbl" id="listingsTxt">listings</div></div>
-      <div><div class="stat-val">6</div><div class="stat-lbl" id="citiesTxt">cities</div></div>
-      <div><div class="stat-val">12K+</div><div class="stat-lbl" id="sellersTxt">sellers</div></div>
+      <div><div class="s-val" id="listCount">0</div><div class="s-lbl" id="listLbl">listings</div></div>
+      <div><div class="s-val">6</div><div class="s-lbl" id="citiesLbl">cities</div></div>
+      <div><div class="s-val" id="userCount">0</div><div class="s-lbl" id="sellersLbl">sellers</div></div>
     </div>
   </div>
-
-  <!-- Pills -->
   <div class="pills" id="pillsRow"></div>
-
-  <!-- Cat grid -->
-  <div class="cat-grid" id="catGrid"></div>
-
-  <!-- Featured -->
-  <div style="padding-top:20px">
-    <div class="section-header">
-      <span class="section-title" id="featuredTitle">⭐ Featured</span>
-      <button class="view-all" id="viewAllTxt">View All</button>
-    </div>
-    <div class="featured-scroll" id="featuredGrid"></div>
+  <div class="cat-grid" id="catGridHome"></div>
+  <div style="padding-top:16px">
+    <div class="sec-header"><span class="sec-title" id="featTitle">⭐ Featured</span><button class="view-all" id="vaBtn">View All</button></div>
+    <div class="feat-scroll" id="featGrid"></div>
   </div>
+  <div style="padding-top:16px">
+    <div class="sec-header"><span class="sec-title" id="latestTitle">🕐 Latest Listings</span><span style="color:#9BA4B5;font-size:12px" id="resCount"></span></div>
+    <div class="grid2" id="mainGrid"></div>
+  </div>
+</div>
 
-  <!-- Latest -->
-  <div style="padding-top:20px">
-    <div class="section-header">
-      <span class="section-title" id="latestTitle">🕐 Latest Listings</span>
-      <span style="color:#9BA4B5;font-size:12px" id="resultCount"></span>
+<!-- FULL PAGES -->
+<div class="fullpage" id="detailPage">
+  <div class="det-hero" id="detHero">
+    <button class="fp-back" style="position:absolute;top:16px;left:16px;background:rgba(10,22,40,0.8);border-radius:20px;padding:7px 14px;" onclick="hidePage('detailPage')">← <span id="backTxt">Back</span></button>
+    <span id="detEmoji" style="font-size:90px"></span>
+    <div id="detFeat" style="display:none;position:absolute;bottom:12px;left:12px;background:linear-gradient(90deg,#C9A84C,#E4C46B);color:#060E1C;font-size:9px;font-weight:800;padding:3px 10px;border-radius:20px;">FEATURED</div>
+  </div>
+  <div class="det-content">
+    <div class="det-title" id="detTitle"></div>
+    <div class="det-price" id="detPrice"></div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px;" id="detTags"></div>
+    <div class="det-city" id="detCity"></div>
+    <div class="desc-box"><div class="desc-t" id="descLbl">Description</div><div class="desc-b" id="detDesc"></div></div>
+    <div class="seller-row">
+      <div class="s-av" id="detSellerAv">K</div>
+      <div><div style="color:#F5F2EB;font-weight:700;font-size:14px;" id="detSellerName">Seller</div><div style="color:#9BA4B5;font-size:11px;margin-top:2px;">⭐⭐⭐⭐⭐ Verified Seller</div></div>
+      <div style="margin-left:auto;background:rgba(61,184,122,0.15);border:1px solid rgba(61,184,122,0.3);color:#3DB87A;font-size:11px;padding:3px 9px;border-radius:20px;">● Online</div>
     </div>
-    <div class="listings-grid" id="listingsGrid"></div>
+  </div>
+  <div class="det-cta">
+    <button class="btn-chat-main" id="chatBtn" onclick="openChat()">💬 <span id="chatNowTxt">Chat Now</span></button>
+    <button class="btn-call-main" onclick="toast('📞 Calling...')">📞</button>
+  </div>
+</div>
+
+<!-- CHAT PAGE -->
+<div class="fullpage" id="chatPage" style="display:flex;flex-direction:column;">
+  <div class="fp-header">
+    <button class="fp-back" onclick="hidePage('chatPage')">←</button>
+    <div>
+      <div class="fp-title" id="chatWith">Chat</div>
+      <div style="color:#3DB87A;font-size:11px;">● Online</div>
+    </div>
+  </div>
+  <div class="chat-msgs" id="chatMsgs"></div>
+  <div class="chat-input-row">
+    <input type="text" id="chatInput" placeholder="Type a message..." onkeydown="if(event.key==='Enter')sendMsg()">
+    <button class="chat-send" onclick="sendMsg()">➤</button>
+  </div>
+</div>
+
+<!-- PROFILE PAGE -->
+<div class="fullpage" id="profilePage">
+  <div class="prof-bg">
+    <button class="fp-back" onclick="hidePage('profilePage')">← <span id="profBackTxt">Back</span></button>
+    <div style="display:flex;align-items:center;gap:14px;margin-top:10px;">
+      <div class="prof-av" id="profAv">?</div>
+      <div>
+        <div class="prof-name" id="profName">-</div>
+        <div class="prof-email" id="profEmail">-</div>
+        <div style="color:#C9A84C;font-size:12px;margin-top:4px;">⭐⭐⭐⭐⭐ Member since 2025</div>
+      </div>
+    </div>
+    <div class="prof-stats">
+      <div class="ps"><div class="ps-val" id="myListCount">0</div><div class="ps-lbl" id="myListLbl">My Listings</div></div>
+      <div class="ps"><div class="ps-val" id="msgCount">0</div><div class="ps-lbl" id="msgLbl">Messages</div></div>
+      <div class="ps"><div class="ps-val">5.0</div><div class="ps-lbl">Rating</div></div>
+    </div>
+  </div>
+  <div class="menu-row" onclick="showMyListings()"><span class="menu-ico">🗂️</span><span class="menu-lbl" id="myListMenuLbl">My Listings</span><span style="color:#9BA4B5;">›</span></div>
+  <div class="menu-row" onclick="showPage('messagesPage')"><span class="menu-ico">💬</span><span class="menu-lbl" id="msgMenuLbl">Messages</span><span style="color:#9BA4B5;">›</span></div>
+  <div class="menu-row" onclick="showPage('notifPage')"><span class="menu-ico">🔔</span><span class="menu-lbl" id="notifMenuLbl">Notifications</span><span style="color:#9BA4B5;">›</span></div>
+  <div class="menu-row" onclick="showPage('faqPage')"><span class="menu-ico">❓</span><span class="menu-lbl">Help & FAQ</span><span style="color:#9BA4B5;">›</span></div>
+  <div class="menu-row" onclick="showPage('settingsPage')"><span class="menu-ico">⚙️</span><span class="menu-lbl" id="settingsLbl">Settings</span><span style="color:#9BA4B5;">›</span></div>
+  <button class="btn-logout" id="logoutBtn2" onclick="doLogout()">Logout</button>
+</div>
+
+<!-- MY LISTINGS PAGE -->
+<div class="fullpage" id="myListingsPage">
+  <div class="fp-header"><button class="fp-back" onclick="hidePage('myListingsPage')">←</button><span class="fp-title" id="myListPageTitle">My Listings</span></div>
+  <div id="myListingsContent" style="padding:16px;padding-bottom:80px;"></div>
+</div>
+
+<!-- MESSAGES PAGE -->
+<div class="fullpage" id="messagesPage">
+  <div class="fp-header"><button class="fp-back" onclick="hidePage('messagesPage')">←</button><span class="fp-title" id="msgPageTitle">Messages</span></div>
+  <div id="messagesContent"></div>
+</div>
+
+<!-- NOTIF PAGE -->
+<div class="fullpage" id="notifPage">
+  <div class="fp-header"><button class="fp-back" onclick="hidePage('notifPage')">←</button><span class="fp-title" id="notifPageTitle">Notifications</span></div>
+  <div id="notifContent" style="padding:16px;"></div>
+</div>
+
+<!-- FAQ PAGE -->
+<div class="fullpage" id="faqPage">
+  <div class="fp-header"><button class="fp-back" onclick="hidePage('faqPage')">←</button><span class="fp-title">Help & FAQ</span></div>
+  <div style="padding:16px;padding-bottom:80px;" id="faqContent"></div>
+</div>
+
+<!-- SETTINGS PAGE -->
+<div class="fullpage" id="settingsPage">
+  <div class="fp-header"><button class="fp-back" onclick="hidePage('settingsPage')">←</button><span class="fp-title" id="settingsPageTitle">Settings</span></div>
+  <div style="padding:16px;padding-bottom:80px;">
+    <div class="menu-row" onclick="toast('Coming soon!')"><span class="menu-ico">👤</span><span class="menu-lbl">Edit Profile</span><span style="color:#9BA4B5;">›</span></div>
+    <div class="menu-row" onclick="toast('Coming soon!')"><span class="menu-ico">🔐</span><span class="menu-lbl">Change Password</span><span style="color:#9BA4B5;">›</span></div>
+    <div class="menu-row" onclick="toast('Coming soon!')"><span class="menu-ico">📱</span><span class="menu-lbl">Phone Number</span><span style="color:#9BA4B5;">›</span></div>
+    <div class="menu-row" onclick="toast('Dark mode is always on! 🌙')"><span class="menu-ico">🌙</span><span class="menu-lbl">Dark Mode</span><span style="color:#3DB87A;">ON</span></div>
+    <div style="text-align:center;color:rgba(255,255,255,0.15);font-size:11px;margin-top:30px;">Bazira v1.0.0 · bazira.app</div>
   </div>
 </div>
 
 <!-- BOTTOM NAV -->
-<div class="bottom-nav">
-  <div class="nav-inner">
-    <button class="nav-item active" id="nav-home" onclick="setTab('home')"><span class="nav-icon">🏠</span><span class="nav-lbl" id="navHome">Home</span></button>
-    <button class="nav-item" id="nav-search" onclick="setTab('search')"><span class="nav-icon">🔍</span><span class="nav-lbl" id="navSearch">Search</span></button>
-    <button class="nav-post" onclick="openLogin()"><span style="font-size:22px;color:#060E1C;">+</span></button>
-    <button class="nav-item" id="nav-saved" onclick="setTab('saved')"><span class="nav-icon">🤍</span><span class="nav-lbl" id="navSaved">Saved</span></button>
-    <button class="nav-item" id="nav-profile" onclick="setTab('profile')"><span class="nav-icon">👤</span><span class="nav-lbl" id="navProfile">Profile</span></button>
+<div class="bnav">
+  <div class="bnav-inner">
+    <button class="nav-btn active" id="nb-home" onclick="showHome()"><span class="nav-ico">🏠</span><span class="nav-lbl" id="navHomeLbl">Home</span></button>
+    <button class="nav-btn" id="nb-search" onclick="focusSearch()"><span class="nav-ico">🔍</span><span class="nav-lbl" id="navSearchLbl">Search</span></button>
+    <button class="nav-post" onclick="openPostAd()"><span style="font-size:22px;color:#060E1C;">+</span></button>
+    <button class="nav-btn" id="nb-msgs" onclick="openMessages()"><span class="nav-ico">💬</span><span class="nav-lbl" id="navMsgLbl">Messages</span></button>
+    <button class="nav-btn" id="nb-profile" onclick="openProfileNav()"><span class="nav-ico">👤</span><span class="nav-lbl" id="navProfileLbl">Profile</span></button>
   </div>
 </div>
-
-<!-- TOAST -->
-<div class="toast" id="toast"></div>
 
 </div><!-- /app -->
 
 <script>
-// ── DATA ────────────────────────────────────────────────────────
-const LISTINGS = [
-  {id:1,cat:'cars',en:'Toyota Land Cruiser GXR 2022',ku:'تۆیۆتا لاند کروزەر 2022',ar:'تويوتا لاند كروزر 2022',price:85000000,city:{en:'Erbil',ku:'هەولێر',ar:'أربيل'},year:2022,mileage:18000,condition:'used',featured:true,verified:true,emoji:'🚙',desc:'Full option, perfect condition, one owner, full service history.'},
-  {id:2,cat:'cars',en:'BMW 5 Series 2021',ku:'BMW 5 Series 2021',ar:'بي إم دبليو الفئة الخامسة 2021',price:62000000,city:{en:'Sulaymaniyah',ku:'سلێمانی',ar:'السليمانية'},year:2021,mileage:32000,condition:'used',featured:true,verified:true,emoji:'🚗',desc:'M Sport package, panoramic roof, excellent condition.'},
-  {id:3,cat:'phones',en:'iPhone 15 Pro Max 256GB',ku:'ئایفۆن 15 پرۆ مەکس',ar:'آيفون 15 برو ماكس',price:2800000,city:{en:'Erbil',ku:'هەولێر',ar:'أربيل'},condition:'new',featured:true,verified:false,emoji:'📱',desc:'Natural Titanium, sealed box, Face ID, 48MP camera.'},
-  {id:4,cat:'realEstate',en:'Villa 450m² in Erbil',ku:'ڤیلا 450م² لە هەولێر',ar:'فيلا 450م² في أربيل',price:450000000,city:{en:'Erbil',ku:'هەولێر',ar:'أربيل'},condition:'new',featured:false,verified:true,emoji:'🏠',desc:'Modern design, private garden, 3 floors, parking for 4 cars.'},
-  {id:5,cat:'cars',en:'Mercedes C300 2023',ku:'مەرسێدس C300 2023',ar:'مرسيدس C300 2023',price:75000000,city:{en:'Duhok',ku:'دهۆک',ar:'دهوك'},year:2023,mileage:5000,condition:'used',featured:false,verified:true,emoji:'🚘',desc:'AMG line, barely used, all original, warranty valid.'},
-  {id:6,cat:'phones',en:'Samsung Galaxy S24 Ultra',ku:'سامسونگ S24 ئۆلترا',ar:'سامسونج S24 الترا',price:2200000,city:{en:'Sulaymaniyah',ku:'سلێمانی',ar:'السليمانية'},condition:'new',featured:false,verified:false,emoji:'📲',desc:'Titanium Black, 512GB, S Pen included, sealed box.'},
-  {id:7,cat:'electronics',en:'LG 65" OLED TV 4K',ku:'تەلەفزیۆن LG 65 OLED',ar:'تلفزيون LG 65 بوصة OLED',price:3500000,city:{en:'Kirkuk',ku:'کەرکووک',ar:'كركوك'},condition:'new',featured:false,verified:false,emoji:'📺',desc:'2024 model, webOS smart TV, Dolby Vision & Atmos.'},
-  {id:8,cat:'motorcycles',en:'Yamaha MT-07 2022',ku:'یاماها MT-07 2022',ar:'ياماها MT-07 2022',price:18000000,city:{en:'Erbil',ku:'هەولێر',ar:'أربيل'},year:2022,mileage:8000,condition:'used',featured:false,verified:true,emoji:'🏍️',desc:'Sport naked, excellent condition, original exhaust.'},
-  {id:9,cat:'phones',en:'iPhone 14 Pro — Cracked Screen',ku:'ئایفۆن 14 پرۆ — شووشەی شکاو',ar:'آيفون 14 برو — شاشة مكسورة',price:850000,city:{en:'Erbil',ku:'هەولێر',ar:'أربيل'},condition:'damaged',featured:false,verified:false,emoji:'📱',desc:'Cracked screen but works perfectly. Great for repair or parts.'},
-  {id:10,cat:'cars',en:'Toyota Corolla 2019 — Accident',ku:'تۆیۆتا کۆرۆلا 2019 — حادیسە',ar:'تويوتا كورولا 2019 — حادث',price:12000000,city:{en:'Duhok',ku:'دهۆک',ar:'دهوك'},year:2019,mileage:55000,condition:'damaged',featured:false,verified:false,emoji:'🚗',desc:'Front damage from accident. Engine perfect. Repair and drive.'},
-];
+// ══════════════════════════════════════════
+// SUPABASE INIT
+// ══════════════════════════════════════════
+const SUPA_URL = 'https://biuaumpizcdpzupsdpcv.supabase.co';
+const SUPA_KEY = 'sb_publishable_9gOVmP0mLjapyyBXL5mlIg_6qB5EEqC';
+const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
 
+// ══════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════
 const CATS = [
   {key:'cars',en:'Cars',ku:'ئۆتۆمبێل',ar:'سيارات',icon:'🚗',bg:'#1e3a5f'},
   {key:'phones',en:'Phones',ku:'مۆبایل',ar:'هواتف',icon:'📱',bg:'#1a4a3a'},
@@ -413,434 +462,527 @@ const CATS = [
   {key:'realEstate',en:'Real Estate',ku:'خانووبەرە',ar:'عقارات',icon:'🏠',bg:'#1e5f3a'},
   {key:'motorcycles',en:'Motorcycles',ku:'مۆتۆسیکل',ar:'دراجات',icon:'🏍️',bg:'#5f1e2e'},
   {key:'spareParts',en:'Spare Parts',ku:'پارچەی یەدەک',ar:'قطع غيار',icon:'⚙️',bg:'#2e3a1e'},
-  {key:'all',en:'All',ku:'هەموو',ar:'الكل',icon:'☰',bg:'#1e2e3a'},
 ];
-
-const T = {
-  en:{dir:'ltr',search:'Search cars, phones, electronics...',heroTag:"KURDISTAN'S PREMIER MARKETPLACE",heroTitle:'Find Everything,<br>Sell Anything 🛍️',heroSub:'Trusted marketplace for Kurdistan & Iraq',listings:'listings',cities:'cities',sellers:'sellers',featured:'⭐ Featured',viewAll:'View All',latest:'🕐 Latest Listings',new:'New',used:'Used',damaged:'Damaged',login:'Login',register:'Create Account',logout:'Logout',back:'Back',chatNow:'Chat Now',notif:'🔔 Notifications',profile:'Profile',myList:'My Listings',saved:'Saved',messages:'Messages',description:'Description',home:'Home',search:'Search',welcomeBack:'Welcome Back 👋',loginSub:'Login to your Bazira account',createAcc:'Create Account 🚀',registerSub:'Join Bazira marketplace today'},
-  ku:{dir:'rtl',search:'گەڕان بۆ ئۆتۆمبێل، مۆبایل...',heroTag:'بازاڕی سەرەکی کوردستان',heroTitle:'هەموو شتێک بدۆزەرەوە،<br>هەر شتێک بیفرۆشە 🛍️',heroSub:'بازاڕی متمانەپێکراو بۆ کوردستان',listings:'ئیلان',cities:'شار',sellers:'فرۆشیار',featured:'⭐ ئیلانە تایبەتەکان',viewAll:'هەموویان ببینە',latest:'🕐 دوایین ئیلانەکان',new:'نوێ',used:'بەکارهاتوو',damaged:'خراپکراو',login:'چوونەژوورەوە',register:'تۆمارکردن',logout:'دەرچوون',back:'گەڕانەوە',chatNow:'چات بکە',notif:'🔔 ئاگادارکردنەوەکان',profile:'پرۆفایل',myList:'ئیلانەکانم',saved:'پاشەکەوت',messages:'پەیامەکان',description:'وەسف',home:'سەرەکی',search:'گەڕان',welcomeBack:'بەخێربێیت 👋',loginSub:'بچۆ ژوورەوە بۆ ئەکاونتی بازیرا',createAcc:'ئەکاونت درووست بکە 🚀',registerSub:'ئەمڕۆ بەشداری بازیرا بکە'},
-  ar:{dir:'rtl',search:'ابحث عن سيارات، هواتف...',heroTag:'السوق الأول في كردستان',heroTitle:'ابحث عن كل شيء،<br>بع أي شيء 🛍️',heroSub:'السوق الموثوق لكردستان والعراق',listings:'إعلان',cities:'مدينة',sellers:'بائع',featured:'⭐ الإعلانات المميزة',viewAll:'عرض الكل',latest:'🕐 أحدث الإعلانات',new:'جديد',used:'مستعمل',damaged:'تالف',login:'تسجيل الدخول',register:'إنشاء حساب',logout:'تسجيل الخروج',back:'رجوع',chatNow:'الدردشة الآن',notif:'🔔 الإشعارات',profile:'الملف الشخصي',myList:'إعلاناتي',saved:'المحفوظات',messages:'الرسائل',description:'الوصف',home:'الرئيسية',search:'بحث',welcomeBack:'مرحباً بعودتك 👋',loginSub:'سجل دخولك إلى حساب بازيرا',createAcc:'إنشاء حساب 🚀',registerSub:'انضم إلى بازيرا اليوم'},
+const CITIES = [
+  {key:'erbil',en:'Erbil',ku:'هەولێر',ar:'أربيل'},
+  {key:'sulaymaniyah',en:'Sulaymaniyah',ku:'سلێمانی',ar:'السليمانية'},
+  {key:'duhok',en:'Duhok',ku:'دهۆک',ar:'دهوك'},
+  {key:'kirkuk',en:'Kirkuk',ku:'کەرکووک',ar:'كركوك'},
+  {key:'baghdad',en:'Baghdad',ku:'بەغدا',ar:'بغداد'},
+  {key:'zakho',en:'Zakho',ku:'زاخۆ',ar:'زاخو'},
+];
+const T={
+  en:{dir:'ltr',search:'Search cars, phones, electronics...',hTag:"KURDISTAN'S PREMIER MARKETPLACE",hTitle:'Find Everything,<br>Sell Anything 🛍️',hSub:'Trusted marketplace for Kurdistan & Iraq',listings:'listings',cities:'cities',sellers:'sellers',featured:'⭐ Featured',viewAll:'View All',latest:'🕐 Latest',new:'New',used:'Used',damaged:'Damaged',login:'Login',logout:'Logout',back:'Back',chatNow:'Chat Now',notifs:'Notifications',profile:'Profile',myListings:'My Listings',messages:'Messages',description:'Description',home:'Home',search:'Search',allCats:'All',settings:'Settings'},
+  ku:{dir:'rtl',search:'گەڕان بۆ ئۆتۆمبێل، مۆبایل...',hTag:'بازاڕی سەرەکی کوردستان',hTitle:'هەموو شتێک بدۆزەرەوە،<br>هەر شتێک بیفرۆشە 🛍️',hSub:'بازاڕی متمانەپێکراو بۆ کوردستان',listings:'ئیلان',cities:'شار',sellers:'فرۆشیار',featured:'⭐ ئیلانە تایبەتەکان',viewAll:'هەموویان ببینە',latest:'🕐 دوایین ئیلانەکان',new:'نوێ',used:'بەکارهاتوو',damaged:'خراپکراو',login:'چوونەژوورەوە',logout:'دەرچوون',back:'گەڕانەوە',chatNow:'چات بکە',notifs:'ئاگادارکردنەوەکان',profile:'پرۆفایل',myListings:'ئیلانەکانم',messages:'پەیامەکان',description:'وەسف',home:'سەرەکی',search:'گەڕان',allCats:'هەموو',settings:'ڕێکخستن'},
+  ar:{dir:'rtl',search:'ابحث عن سيارات، هواتف...',hTag:'السوق الأول في كردستان',hTitle:'ابحث عن كل شيء،<br>بع أي شيء 🛍️',hSub:'السوق الموثوق لكردستان والعراق',listings:'إعلان',cities:'مدينة',sellers:'بائع',featured:'⭐ الإعلانات المميزة',viewAll:'عرض الكل',latest:'🕐 أحدث الإعلانات',new:'جديد',used:'مستعمل',damaged:'تالف',login:'تسجيل الدخول',logout:'تسجيل الخروج',back:'رجوع',chatNow:'الدردشة الآن',notifs:'الإشعارات',profile:'الملف الشخصي',myListings:'إعلاناتي',messages:'الرسائل',description:'الوصف',home:'الرئيسية',search:'بحث',allCats:'الكل',settings:'الإعدادات'},
 };
 
-// ── STATE ────────────────────────────────────────────────────────
-let lang = 'en';
-let currentCat = 'all';
-let loggedIn = false;
-let userName = '';
-let userEmail = '';
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+let lang='en', user=null, currentCat='all', allListings=[], currentListing=null, chatMessages=[], chatListingId=null, postCat='', postCond='new', postCity='', postPhotos=[];
 
-// ── HELPERS ──────────────────────────────────────────────────────
-function t(key){ return T[lang][key] || key; }
-function fmtPrice(p){ if(p>=1000000) return (p/1000000).toFixed(1)+'M IQD'; if(p>=1000) return (p/1000).toFixed(0)+'K IQD'; return p+' IQD'; }
-function getTitle(item){ return lang==='ku'?item.ku:lang==='ar'?item.ar:item.en; }
-function getCity(item){ return item.city[lang]||item.city.en; }
+// ══════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════
+const t=k=>T[lang][k]||k;
+function fmtPrice(p){if(p>=1000000)return (p/1000000).toFixed(1)+'M IQD';if(p>=1000)return (p/1000).toFixed(0)+'K IQD';return p+' IQD';}
+function toast(msg,dur=2800){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),dur);}
+function showErr(id,msg){const el=document.getElementById(id);el.textContent=msg;el.style.display='block';}
+function hideErr(id){document.getElementById(id).style.display='none';}
+function showSuc(id,msg){const el=document.getElementById(id);el.textContent=msg;el.style.display='block';}
+function setBtn(id,txt,dis){const el=document.getElementById(id);el.textContent=txt;el.disabled=dis;}
 
-// ── LANGUAGE ─────────────────────────────────────────────────────
+// ══════════════════════════════════════════
+// LANGUAGE
+// ══════════════════════════════════════════
 function setLang(l){
   lang=l;
-  document.getElementById('app').className = 'app '+(T[l].dir==='rtl'?'rtl':'');
-  document.getElementById('langBtn').textContent = l==='en'?'EN ›':l==='ku'?'كو ›':'عر ›';
-  ['langEn','langKu','langAr'].forEach(id=>document.getElementById(id).classList.remove('active'));
-  document.getElementById(l==='en'?'langEn':l==='ku'?'langKu':'langAr').classList.add('active');
-  document.getElementById('langMenuGlobal').classList.remove('show');
-  // Update search placeholder
-  document.getElementById('searchInput').placeholder = t('search');
-  // Update hero
-  document.getElementById('heroTag').textContent = t('heroTag');
-  document.getElementById('heroTitle').innerHTML = t('heroTitle');
-  document.getElementById('heroSub').textContent = t('heroSub');
-  document.getElementById('listingsTxt').textContent = t('listings');
-  document.getElementById('citiesTxt').textContent = t('cities');
-  document.getElementById('sellersTxt').textContent = t('sellers');
-  // Nav
-  document.getElementById('navHome').textContent = t('home');
-  document.getElementById('navSearch').textContent = t('search');
-  document.getElementById('navSaved').textContent = t('saved');
-  document.getElementById('navProfile').textContent = t('profile');
-  // Buttons
-  if(!loggedIn) document.getElementById('loginBtn').textContent = t('login');
-  document.getElementById('featuredTitle').textContent = t('featured');
-  document.getElementById('viewAllTxt').textContent = t('viewAll');
-  document.getElementById('latestTitle').textContent = t('latest');
-  document.getElementById('notifTitle').textContent = t('notif');
-  document.getElementById('backTxt').textContent = t('back');
-  document.getElementById('chatNowTxt').textContent = t('chatNow');
-  document.getElementById('myListTxt').textContent = t('myList');
-  document.getElementById('savedTxt2').textContent = t('saved');
-  document.getElementById('msgTxt').textContent = t('messages');
-  document.getElementById('myListMenuTxt').textContent = t('myList');
-  document.getElementById('savedMenuTxt').textContent = t('saved');
-  document.getElementById('msgMenuTxt').textContent = t('messages');
-  document.getElementById('notifMenuTxt').textContent = t('notif');
-  document.getElementById('logoutBtn').textContent = t('logout');
-  document.getElementById('descTitleTxt').textContent = t('description');
-  // Login modal
-  document.getElementById('loginTitle').textContent = t('welcomeBack');
-  document.getElementById('loginSub').textContent = t('loginSub');
-  render();
+  document.getElementById('app').className='app '+(T[l].dir==='rtl'?'rtl':'');
+  document.getElementById('langBtn').textContent=l==='en'?'EN ›':l==='ku'?'كو ›':'عر ›';
+  ['en','ku','ar'].forEach(c=>{document.getElementById('lo-'+c).classList.toggle('active',c===l);});
+  document.getElementById('langDd').classList.remove('show');
+  document.getElementById('searchIn').placeholder=t('search');
+  document.getElementById('hTag').textContent=t('hTag');
+  document.getElementById('hTitle').innerHTML=t('hTitle');
+  document.getElementById('hSub').textContent=t('hSub');
+  document.getElementById('listLbl').textContent=t('listings');
+  document.getElementById('citiesLbl').textContent=t('cities');
+  document.getElementById('sellersLbl').textContent=t('sellers');
+  document.getElementById('featTitle').textContent=t('featured');
+  document.getElementById('vaBtn').textContent=t('viewAll');
+  document.getElementById('latestTitle').textContent=t('latest');
+  document.getElementById('navHomeLbl').textContent=t('home');
+  document.getElementById('navSearchLbl').textContent=t('search');
+  document.getElementById('navMsgLbl').textContent=t('messages');
+  document.getElementById('navProfileLbl').textContent=t('profile');
+  document.getElementById('backTxt').textContent=t('back');
+  document.getElementById('chatNowTxt').textContent=t('chatNow');
+  document.getElementById('descLbl').textContent=t('description');
+  document.getElementById('profBackTxt').textContent=t('back');
+  document.getElementById('myListLbl').textContent=t('myListings');
+  document.getElementById('myListMenuLbl').textContent=t('myListings');
+  document.getElementById('myListPageTitle').textContent=t('myListings');
+  document.getElementById('msgMenuLbl').textContent=t('messages');
+  document.getElementById('msgPageTitle').textContent=t('messages');
+  document.getElementById('notifMenuLbl').textContent=t('notifs');
+  document.getElementById('notifPageTitle').textContent=t('notifs');
+  document.getElementById('settingsLbl').textContent=t('settings');
+  document.getElementById('settingsPageTitle').textContent=t('settings');
+  if(!user) document.getElementById('loginHBtn').textContent=t('login');
+  document.getElementById('logoutBtn2').textContent=t('logout');
+  renderListings();
+  renderCatGrid();
+  renderPills();
+}
+function toggleLang(){document.getElementById('langDd').classList.toggle('show');}
+document.addEventListener('click',e=>{if(!e.target.closest('#langBtn')&&!e.target.closest('#langDd'))document.getElementById('langDd').classList.remove('show');});
+
+// ══════════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════════
+function openAuth(){closeAllPages();document.getElementById('authOverlay').classList.add('show');showLogin();}
+function showLogin(){document.getElementById('loginView').style.display='block';document.getElementById('registerView').style.display='none';hideErr('loginErr');document.getElementById('loginSuc').style.display='none';}
+function showRegister(){document.getElementById('loginView').style.display='none';document.getElementById('registerView').style.display='block';hideErr('regErr');}
+function bgClose(e,id){if(e.target===document.getElementById(id))closeOverlay(id);}
+function closeOverlay(id){document.getElementById(id).classList.remove('show');}
+
+async function doLogin(){
+  const email=document.getElementById('lEmail').value.trim();
+  const pass=document.getElementById('lPass').value;
+  if(!email||!pass){showErr('loginErr','Please fill in all fields');return;}
+  hideErr('loginErr');
+  setBtn('loginBtn2','Logging in...',true);
+  const {data,error}=await sb.auth.signInWithPassword({email,password:pass});
+  setBtn('loginBtn2','Login',false);
+  if(error){showErr('loginErr',error.message);return;}
+  closeOverlay('authOverlay');
+  toast('✅ Welcome back!');
 }
 
-function toggleLangMenu(){
-  document.getElementById('langMenuGlobal').classList.toggle('show');
+async function doRegister(){
+  const name=document.getElementById('rName').value.trim();
+  const email=document.getElementById('rEmail').value.trim();
+  const pass=document.getElementById('rPass').value;
+  if(!name||!email||!pass){showErr('regErr','Please fill in all required fields');return;}
+  if(pass.length<6){showErr('regErr','Password must be at least 6 characters');return;}
+  hideErr('regErr');
+  setBtn('regBtn','Creating account...',true);
+  const {data,error}=await sb.auth.signUp({email,password:pass,options:{data:{name}}});
+  setBtn('regBtn','Create Account',false);
+  if(error){showErr('regErr',error.message);return;}
+  showSuc('loginSuc','✅ Account created! Please check your email to confirm.');
+  showLogin();
 }
 
-document.addEventListener('click', function(e){
-  if(!e.target.closest('#langBtn') && !e.target.closest('#langMenuGlobal')){
-    document.getElementById('langMenuGlobal').classList.remove('show');
-  }
-});
-
-// ── AUTH ─────────────────────────────────────────────────────────
-function openLogin(){
-  document.getElementById('loginOverlay').classList.add('show');
-  switchToLogin();
-}
-function closeModal(id){ document.getElementById(id).classList.remove('show'); }
-function closeLoginOnBg(e){ if(e.target===document.getElementById('loginOverlay')) closeModal('loginOverlay'); }
-
-function switchToLogin(){
-  document.getElementById('loginForm').style.display='block';
-  document.getElementById('registerForm').style.display='none';
-}
-function switchToRegister(){
-  document.getElementById('loginForm').style.display='none';
-  document.getElementById('registerForm').style.display='block';
-}
-
-function doLogin(){
-  const email = document.getElementById('loginEmail').value;
-  const pass = document.getElementById('loginPass').value;
-  if(!email || !pass){ showToast('⚠️ Please fill in all fields'); return; }
-  // Simple validation
-  loggedIn = true;
-  userName = email.split('@')[0];
-  userEmail = email;
+async function doLogout(){
+  await sb.auth.signOut();
+  user=null;
   updateAuthUI();
-  closeModal('loginOverlay');
-  showToast('✅ Welcome back, '+userName+'!');
-}
-
-function doRegister(){
-  const name = document.getElementById('regName').value;
-  const email = document.getElementById('regEmail').value;
-  const phone = document.getElementById('regPhone').value;
-  const pass = document.getElementById('regPass').value;
-  if(!name||!email||!phone||!pass){ showToast('⚠️ Please fill in all fields'); return; }
-  loggedIn = true;
-  userName = name;
-  userEmail = email;
-  updateAuthUI();
-  closeModal('loginOverlay');
-  showToast('🎉 Welcome to Bazira, '+name+'!');
-}
-
-function doLogout(){
-  loggedIn = false;
-  userName = '';
-  userEmail = '';
-  updateAuthUI();
-  closeProfile();
-  showToast('👋 Logged out successfully');
+  hidePage('profilePage');
+  toast('👋 Logged out');
 }
 
 function updateAuthUI(){
-  document.getElementById('loginBtn').style.display = loggedIn?'none':'block';
-  document.getElementById('avatarBtn').style.display = loggedIn?'block':'none';
-  if(loggedIn){
-    document.getElementById('avatarBtn').textContent = '👤 '+userName.charAt(0).toUpperCase();
-    document.getElementById('profileName').textContent = userName;
-    document.getElementById('profileEmail').textContent = userEmail;
-    document.getElementById('profileAvatar').textContent = userName.charAt(0).toUpperCase();
+  const li=document.getElementById('loginHBtn');
+  const av=document.getElementById('avatarBtn');
+  if(user){
+    li.style.display='none';
+    av.style.display='block';
+    const n=user.user_metadata?.name||user.email?.split('@')[0]||'U';
+    av.textContent='👤 '+n.charAt(0).toUpperCase();
+    document.getElementById('profName').textContent=n;
+    document.getElementById('profEmail').textContent=user.email||'';
+    document.getElementById('profAv').textContent=n.charAt(0).toUpperCase();
+    loadMyListingsCount();
+    loadMessageCount();
+  } else {
+    li.style.display='block';
+    av.style.display='none';
+    document.getElementById('profName').textContent='-';
+    document.getElementById('profEmail').textContent='-';
+    document.getElementById('profAv').textContent='?';
   }
 }
 
-// ── NOTIFICATIONS ─────────────────────────────────────────────────
-function toggleNotif(){
-  document.getElementById('notifPanel').classList.toggle('show');
+// Auth state listener
+sb.auth.onAuthStateChange((_,session)=>{
+  user=session?.user||null;
+  updateAuthUI();
+});
+
+// ══════════════════════════════════════════
+// LISTINGS - FETCH
+// ══════════════════════════════════════════
+async function fetchListings(){
+  const {data,error}=await sb.from('listings').select('*, profiles(name)').eq('active',true).order('created_at',{ascending:false});
+  if(error){console.error(error);return;}
+  allListings=data||[];
+  document.getElementById('listCount').textContent=allListings.length+''+( allListings.length>999?'':'');
+  if(allListings.length>0) document.getElementById('listCount').textContent=allListings.length<1000?allListings.length:Math.floor(allListings.length/1000)+'K+';
+  renderListings();
 }
 
-// ── PROFILE ───────────────────────────────────────────────────────
-function openProfile(){
-  if(!loggedIn){ openLogin(); return; }
-  document.getElementById('profilePanel').classList.add('show');
-}
-function closeProfile(){
-  document.getElementById('profilePanel').classList.remove('show');
+async function fetchUserCount(){
+  const {count}=await sb.from('profiles').select('*',{count:'exact',head:true});
+  document.getElementById('userCount').textContent=count||0;
 }
 
-// ── DETAIL ────────────────────────────────────────────────────────
-function openDetail(item){
-  document.getElementById('detailEmoji').textContent = item.emoji;
-  document.getElementById('detailFeaturedBadge').style.display = item.featured?'block':'none';
-  document.getElementById('detailTitle').textContent = getTitle(item);
-  document.getElementById('detailPrice').textContent = fmtPrice(item.price);
-  document.getElementById('detailCity').textContent = '📍 '+getCity(item);
-  document.getElementById('detailDesc').textContent = item.desc;
-  // Tags
-  let tags = '';
-  if(item.year) tags += `<span class="tag">${item.year}</span>`;
-  if(item.mileage) tags += `<span class="tag">${item.mileage.toLocaleString()} km</span>`;
-  const cond = item.condition==='new'?t('new'):item.condition==='damaged'?t('damaged'):t('used');
-  const condClass = item.condition==='new'?'new':item.condition==='damaged'?'damaged':'';
-  tags += `<span class="tag ${condClass}">${cond}</span>`;
-  document.getElementById('detailTags').innerHTML = tags;
-  document.getElementById('detailPanel').classList.add('show');
-}
-function closeDetail(){
-  document.getElementById('detailPanel').classList.remove('show');
+async function loadMyListingsCount(){
+  if(!user)return;
+  const {count}=await sb.from('listings').select('*',{count:'exact',head:true}).eq('user_id',user.id);
+  document.getElementById('myListCount').textContent=count||0;
 }
 
-// ── TABS ──────────────────────────────────────────────────────────
-function setTab(tab){
-  ['home','search','saved','profile'].forEach(t=>{
-    const el = document.getElementById('nav-'+t);
-    if(el) el.classList.remove('active');
+async function loadMessageCount(){
+  if(!user)return;
+  const {count}=await sb.from('messages').select('*',{count:'exact',head:true}).eq('receiver_id',user.id).eq('read',false);
+  document.getElementById('msgCount').textContent=count||0;
+  document.getElementById('bellDot').style.display=count>0?'block':'none';
+}
+
+// ══════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════
+function getCityName(cityKey){
+  const c=CITIES.find(x=>x.key===cityKey||x.en.toLowerCase()===cityKey?.toLowerCase());
+  return c?c[lang]||c.en:cityKey;
+}
+function getCatIcon(catKey){
+  const c=CATS.find(x=>x.key===catKey);
+  return c?c.icon:'📦';
+}
+
+function renderListings(){
+  const q=document.getElementById('searchIn').value.toLowerCase();
+  const filtered=allListings.filter(l=>{
+    const mCat=currentCat==='all'||l.category===currentCat;
+    const mQ=!q||l.title.toLowerCase().includes(q)||(l.description||'').toLowerCase().includes(q);
+    return mCat&&mQ;
   });
-  const navEl = document.getElementById('nav-'+tab);
-  if(navEl) navEl.classList.add('active');
-
-  if(tab==='profile'){ openProfile(); return; }
-  if(tab==='search'){ document.getElementById('searchInput').focus(); }
+  const featured=filtered.filter(l=>l.featured);
+  const latest=filtered.filter(l=>!l.featured);
+  document.getElementById('featGrid').innerHTML=featured.length?featured.map(l=>`<div style="min-width:200px;flex-shrink:0;">${cardHTML(l)}</div>`).join(''):`<div style="padding:0 0 0 16px;color:#9BA4B5;font-size:13px;">No featured listings yet</div>`;
+  const showList=latest.length?latest:filtered;
+  document.getElementById('mainGrid').innerHTML=showList.length?showList.map(cardHTML).join(''):`<div style="grid-column:1/-1;" class="empty"><div class="empty-ico">🔍</div><div class="empty-t">No listings found</div><div class="empty-s">Be the first to post!</div></div>`;
+  document.getElementById('resCount').textContent=filtered.length+' '+t('listings');
 }
 
-// ── TOAST ─────────────────────────────────────────────────────────
-function showToast(msg){
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'), 2800);
-}
-
-// ── CLEAR SEARCH ─────────────────────────────────────────────────
-function clearSearch(){
-  document.getElementById('searchInput').value='';
-  document.getElementById('clearSearch').style.display='none';
-  render();
-}
-
-// ── RENDER ────────────────────────────────────────────────────────
-function render(){
-  const q = document.getElementById('searchInput').value.toLowerCase();
-  document.getElementById('clearSearch').style.display = q?'block':'none';
-
-  const filtered = LISTINGS.filter(l=>{
-    const mCat = currentCat==='all'||l.cat===currentCat;
-    const mQ = !q||l.en.toLowerCase().includes(q)||l.ku.includes(q)||l.ar.includes(q);
-    return mCat && mQ;
-  });
-
-  const featured = filtered.filter(l=>l.featured);
-  const latest = filtered.filter(l=>!l.featured);
-
-  // Pills
-  const pillsRow = document.getElementById('pillsRow');
-  pillsRow.innerHTML = `<div class="pill ${currentCat==='all'?'active':''}" onclick="setCat('all')">${t('home')==='Home'?'All':CATS.find(c=>c.key==='all')[lang]||'All'}</div>`
-    + CATS.filter(c=>c.key!=='all').map(c=>`<div class="pill ${currentCat===c.key?'active':''}" onclick="setCat('${c.key}')">${c.icon} ${c[lang]||c.en}</div>`).join('');
-
-  // Cat grid
-  document.getElementById('catGrid').innerHTML = CATS.map(c=>`
-    <div class="cat-item" style="background:${c.bg}" onclick="setCat('${c.key}')">
-      <span class="cat-icon">${c.icon}</span>
-      <span class="cat-label">${c[lang]||c.en}</span>
-    </div>`).join('');
-
-  // Featured
-  document.getElementById('featuredGrid').innerHTML = featured.map(cardHTML).map(h=>`<div style="min-width:200px;flex-shrink:0">${h}</div>`).join('');
-
-  // Latest
-  document.getElementById('listingsGrid').innerHTML = (latest.length?latest:filtered).map(cardHTML).join('');
-  document.getElementById('resultCount').textContent = filtered.length+' '+t('listings');
-}
-
-function cardHTML(item){
-  const cond = item.condition==='new'?t('new'):item.condition==='damaged'?t('damaged'):t('used');
-  const condClass = item.condition==='new'?'new':item.condition==='damaged'?'damaged':'';
-  return `<div class="card" onclick="openDetail(LISTINGS.find(l=>l.id===${item.id}))">
+function cardHTML(l){
+  const cond=l.condition==='new'?t('new'):l.condition==='damaged'?t('damaged'):t('used');
+  const condCls=l.condition==='new'?'new':l.condition==='damaged'?'damaged':'';
+  return `<div class="card" onclick="openDetail('${l.id}')">
     <div class="card-img">
-      ${item.featured?'<span class="badge-featured">FEATURED</span>':''}
-      ${item.verified?'<span class="badge-verified">✓ Verified</span>':''}
-      <span>${item.emoji}</span>
+      ${l.featured?'<span class="badge-f">FEATURED</span>':''}
+      ${l.verified?'<span class="badge-v">✓</span>':''}
+      <span>${l.emoji||getCatIcon(l.category)}</span>
     </div>
     <div class="card-body">
-      <div class="card-title">${getTitle(item)}</div>
-      <div class="card-price">${fmtPrice(item.price)}</div>
-      <div class="card-tags">
-        ${item.year?`<span class="tag">${item.year}</span>`:''}
-        ${item.mileage?`<span class="tag">${item.mileage.toLocaleString()} km</span>`:''}
-        <span class="tag ${condClass}">${cond}</span>
-      </div>
-      <div class="card-city">📍 ${getCity(item)}</div>
+      <div class="card-title">${l.title}</div>
+      <div class="card-price">${fmtPrice(l.price)}</div>
+      <div class="card-tags"><span class="tag ${condCls}">${cond}</span></div>
+      <div class="card-city">📍 ${getCityName(l.city)}</div>
     </div>
   </div>`;
 }
 
-function setCat(cat){
-  currentCat = cat;
-  render();
+function renderCatGrid(){
+  const all=[{key:'all',en:t('allCats'),ku:t('allCats'),ar:t('allCats'),icon:'☰',bg:'#1e2e3a'},...CATS];
+  document.getElementById('catGridHome').innerHTML=all.map(c=>`<div class="cat-item" style="background:${c.bg}" onclick="setCat('${c.key}')"><span class="cat-icon">${c.icon}</span><span class="cat-lbl">${c[lang]||c.en}</span></div>`).join('');
 }
 
-// ── SUBPAGES ──────────────────────────────────────────────────────
-function openSubPage(page){
-  const panel = document.getElementById('subPage');
-  const title = document.getElementById('subPageTitle');
-  const content = document.getElementById('subPageContent');
-  panel.style.display = 'block';
-
-  const pages = {
-    mylistings: {
-      en:'My Listings', ku:'ئیلانەکانم', ar:'إعلاناتي',
-      html: `
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
-          ${LISTINGS.slice(0,3).map(l=>`
-            <div style="background:#0E2040;border-radius:14px;overflow:hidden;border:1px solid rgba(201,168,76,0.15);">
-              <div style="height:90px;background:linear-gradient(135deg,#0a1628,#162B52);display:flex;align-items:center;justify-content:center;font-size:40px;">${l.emoji}</div>
-              <div style="padding:10px;">
-                <div style="color:#F5F2EB;font-size:11px;font-weight:700;margin-bottom:4px;line-height:1.3;">${getTitle(l)}</div>
-                <div style="color:#C9A84C;font-size:13px;font-weight:900;margin-bottom:6px;">${fmtPrice(l.price)}</div>
-                <span style="background:rgba(61,184,122,0.12);border:1px solid rgba(61,184,122,0.25);color:#3DB87A;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600;">● Active</span>
-              </div>
-            </div>`).join('')}
-        </div>
-        <div style="margin-top:20px;">
-          <button onclick="showToast('✅ Post Ad coming soon!')" style="width:100%;background:linear-gradient(135deg,#C9A84C,#E4C46B);border:none;border-radius:12px;padding:14px;color:#060E1C;font-size:15px;font-weight:800;cursor:pointer;">+ Post New Listing</button>
-        </div>`
-    },
-    saved: {
-      en:'Saved', ku:'پاشەکەوت', ar:'المحفوظات',
-      html: `
-        <div style="text-align:center;padding:60px 20px;">
-          <div style="font-size:64px;margin-bottom:16px;">🤍</div>
-          <div style="color:#F5F2EB;font-size:16px;font-weight:700;margin-bottom:8px;">No saved listings yet</div>
-          <div style="color:#9BA4B5;font-size:13px;line-height:1.6;">Tap ❤️ on any listing to save it here for later</div>
-        </div>`
-    },
-    messages: {
-      en:'Messages', ku:'پەیامەکان', ar:'الرسائل',
-      html: `
-        <div style="display:flex;flex-direction:column;gap:12px;">
-          ${[
-            {name:'Ahmed Al-Rashid',msg:'Is the Toyota still available?',time:'2m',emoji:'🚙',unread:true},
-            {name:'Sara Mohammed',msg:'What is the lowest price for the iPhone?',time:'1h',emoji:'📱',unread:true},
-            {name:'Karwan Jamal',msg:'OK I will come tomorrow to see it',time:'3h',emoji:'🏠',unread:false},
-          ].map(m=>`
-            <div onclick="showToast('💬 Chat feature coming soon!')" style="background:${m.unread?'rgba(201,168,76,0.07)':'rgba(255,255,255,0.03)'};border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;">
-              <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#0E2040,#162B52);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">${m.emoji}</div>
-              <div style="flex:1;min-width:0;">
-                <div style="color:#F5F2EB;font-weight:700;font-size:14px;">${m.name}</div>
-                <div style="color:#9BA4B5;font-size:12px;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${m.msg}</div>
-              </div>
-              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;">
-                <span style="color:#9BA4B5;font-size:11px;">${m.time}</span>
-                ${m.unread?'<span style="width:10px;height:10px;background:#C9A84C;border-radius:50%;display:block;"></span>':''}
-              </div>
-            </div>`).join('')}
-        </div>`
-    },
-    notifications: {
-      en:'Notifications', ku:'ئاگادارکردنەوەکان', ar:'الإشعارات',
-      html: `
-        <div style="display:flex;flex-direction:column;gap:0;">
-          ${[
-            {icon:'💬',title:'New Message',desc:'Someone asked about your Toyota Land Cruiser',time:'2 min ago',unread:true},
-            {icon:'✅',title:'Listing Approved',desc:'Your BMW 5 Series listing is now live',time:'1 hour ago',unread:true},
-            {icon:'❤️',title:'Saved by Someone',desc:'3 people saved your listing today',time:'3 hours ago',unread:false},
-            {icon:'🏷️',title:'Price Drop Alert',desc:'Mercedes C300 you saved dropped in price',time:'5 hours ago',unread:false},
-            {icon:'👀',title:'New Views',desc:'Your listing got 24 new views today',time:'Yesterday',unread:false},
-          ].map(n=>`
-            <div style="padding:14px 4px;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;gap:12px;align-items:flex-start;background:${n.unread?'rgba(201,168,76,0.04)':'none'};">
-              <span style="font-size:24px;flex-shrink:0;">${n.icon}</span>
-              <div style="flex:1;">
-                <div style="color:#F5F2EB;font-size:13px;font-weight:700;margin-bottom:3px;">${n.title}</div>
-                <div style="color:#9BA4B5;font-size:12px;line-height:1.4;">${n.desc}</div>
-                <div style="color:#9BA4B5;font-size:11px;margin-top:4px;">${n.time}</div>
-              </div>
-              ${n.unread?'<div style="width:8px;height:8px;background:#C9A84C;border-radius:50%;flex-shrink:0;margin-top:4px;"></div>':''}
-            </div>`).join('')}
-        </div>`
-    },
-    faq: {
-      en:'Help & FAQ', ku:'پرسیارە باوەکان', ar:'الأسئلة الشائعة',
-      html: `
-        <div style="display:flex;flex-direction:column;gap:10px;">
-          ${[
-            {q:'How do I post a listing?',a:'Tap the + button at the bottom. Fill in details, price, location and add photos. Then tap "Publish Listing".'},
-            {q:'Is posting free?',a:'Yes! Basic listings are completely free. Premium featured listings will be available soon.'},
-            {q:'How do I contact a seller?',a:'Open any listing and tap "Chat Now" to start a conversation with the seller directly.'},
-            {q:'Is it safe to buy on Bazira?',a:'We recommend meeting in public places. Always inspect items before paying. Never send money in advance.'},
-            {q:'Which cities are supported?',a:'Currently: Erbil, Sulaymaniyah, Duhok, Kirkuk, Baghdad and Zakho. More cities coming soon!'},
-            {q:'How do I change my language?',a:'Tap the language button (EN/كو/عر) at the top right of the home screen.'},
-            {q:'How do I report a fake listing?',a:'Open the listing, scroll down and tap "Report". Our team reviews all reports within 24 hours.'},
-            {q:'Contact us',a:'Email: support@bazira.app\nWe respond within 24 hours.'},
-          ].map((item,i)=>`
-            <div onclick="toggleFaq(this)" style="background:#0E2040;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.07);cursor:pointer;">
-              <div style="padding:14px 16px;display:flex;justify-content:space-between;align-items:center;">
-                <span style="color:#F5F2EB;font-size:13px;font-weight:600;flex:1;line-height:1.4;">${item.q}</span>
-                <span style="color:#C9A84C;font-size:18px;margin-left:10px;flex-shrink:0;">+</span>
-              </div>
-              <div class="faq-answer" style="display:none;padding:0 16px 14px;">
-                <div style="color:#9BA4B5;font-size:13px;line-height:1.6;border-top:1px solid rgba(255,255,255,0.06);padding-top:10px;">${item.a}</div>
-              </div>
-            </div>`).join('')}
-        </div>`
-    },
-    settings: {
-      en:'Settings', ku:'ڕێکخستنەکان', ar:'الإعدادات',
-      html: `
-        <div style="display:flex;flex-direction:column;gap:0;">
-          <div style="color:#9BA4B5;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:0 4px 10px;">Account</div>
-          ${[
-            {icon:'👤',label:'Edit Profile',action:"showToast('⚙️ Edit profile coming soon!')"},
-            {icon:'🔐',label:'Change Password',action:"showToast('🔐 Change password coming soon!')"},
-            {icon:'📱',label:'Phone Number',action:"showToast('📱 Phone settings coming soon!')"},
-          ].map(item=>`
-            <div onclick="${item.action}" style="display:flex;align-items:center;gap:14px;padding:14px 4px;border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer;">
-              <span style="font-size:20px;width:32px;text-align:center;">${item.icon}</span>
-              <span style="color:#F5F2EB;font-size:14px;font-weight:600;flex:1;">${item.label}</span>
-              <span style="color:#9BA4B5;">›</span>
-            </div>`).join('')}
-          <div style="color:#9BA4B5;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:20px 4px 10px;">Preferences</div>
-          ${[
-            {icon:'🌐',label:'Language',action:"showToast('🌐 Use the EN/كو/عر button on home screen')"},
-            {icon:'🔔',label:'Notifications',action:"showToast('🔔 Notification settings coming soon!')"},
-            {icon:'🌙',label:'Dark Mode',action:"showToast('🌙 Dark mode is always on!')"},
-          ].map(item=>`
-            <div onclick="${item.action}" style="display:flex;align-items:center;gap:14px;padding:14px 4px;border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer;">
-              <span style="font-size:20px;width:32px;text-align:center;">${item.icon}</span>
-              <span style="color:#F5F2EB;font-size:14px;font-weight:600;flex:1;">${item.label}</span>
-              <span style="color:#9BA4B5;">›</span>
-            </div>`).join('')}
-          <div style="margin-top:24px;">
-            <button onclick="doLogout();closeSubPage();" style="width:100%;background:rgba(201,76,76,0.12);border:1px solid rgba(201,76,76,0.3);border-radius:12px;padding:14px;color:#C94C4C;font-size:15px;font-weight:700;cursor:pointer;">Logout</button>
-          </div>
-          <div style="text-align:center;color:rgba(255,255,255,0.2);font-size:11px;margin-top:20px;">Bazira v1.0.0 · bazira.app</div>
-        </div>`
-    },
-  };
-
-  const p = pages[page];
-  if(!p) return;
-  title.textContent = p[lang] || p.en;
-  content.innerHTML = p.html;
+function renderPills(){
+  const all=[{key:'all',en:t('allCats'),ku:t('allCats'),ar:t('allCats'),icon:''},...CATS];
+  document.getElementById('pillsRow').innerHTML=all.map(c=>`<div class="pill ${currentCat===c.key?'active':''}" onclick="setCat('${c.key}')">${c.icon?c.icon+' ':''}${c[lang]||c.en}</div>`).join('');
 }
 
-function closeSubPage(){
-  document.getElementById('subPage').style.display = 'none';
+function setCat(cat){currentCat=cat;renderPills();renderListings();}
+
+// ══════════════════════════════════════════
+// DETAIL
+// ══════════════════════════════════════════
+function openDetail(id){
+  const l=allListings.find(x=>x.id===id);
+  if(!l)return;
+  currentListing=l;
+  document.getElementById('detEmoji').textContent=l.emoji||getCatIcon(l.category);
+  document.getElementById('detFeat').style.display=l.featured?'block':'none';
+  document.getElementById('detTitle').textContent=l.title;
+  document.getElementById('detPrice').textContent=fmtPrice(l.price);
+  document.getElementById('detCity').textContent='📍 '+getCityName(l.city);
+  document.getElementById('detDesc').textContent=l.description||'No description provided.';
+  const cond=l.condition==='new'?t('new'):l.condition==='damaged'?t('damaged'):t('used');
+  document.getElementById('detTags').innerHTML=`<span class="tag ${l.condition==='new'?'new':l.condition==='damaged'?'damaged':''}">${cond}</span>`;
+  const sName=l.profiles?.name||'Seller';
+  document.getElementById('detSellerName').textContent=sName;
+  document.getElementById('detSellerAv').textContent=sName.charAt(0).toUpperCase();
+  showPage('detailPage');
 }
 
-function toggleFaq(el){
-  const answer = el.querySelector('.faq-answer');
-  const plus = el.querySelector('span:last-child');
-  const isOpen = answer.style.display === 'block';
-  answer.style.display = isOpen ? 'none' : 'block';
-  plus.textContent = isOpen ? '+' : '−';
+// ══════════════════════════════════════════
+// CHAT
+// ══════════════════════════════════════════
+async function openChat(){
+  if(!user){openAuth();return;}
+  if(!currentListing)return;
+  chatListingId=currentListing.id;
+  document.getElementById('chatWith').textContent=currentListing.title;
+  chatMessages=[];
+  document.getElementById('chatMsgs').innerHTML='<div class="loading"><div class="spinner"></div> Loading...</div>';
+  showPage('chatPage');
+  await loadChatMessages();
+  // Realtime subscription
+  sb.channel('chat:'+chatListingId).on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:'listing_id=eq.'+chatListingId},payload=>{
+    chatMessages.push(payload.new);
+    renderChatMessages();
+    // Mark as read
+    if(payload.new.receiver_id===user.id) sb.from('messages').update({read:true}).eq('id',payload.new.id);
+  }).subscribe();
 }
-document.querySelector('.nav-post').onclick = function(){
-  if(!loggedIn){ openLogin(); showToast('⚠️ Please login to post an ad'); return; }
-  showToast('✅ Post Ad feature coming soon!');
-};
 
-// ── INIT ──────────────────────────────────────────────────────────
-render();
+async function loadChatMessages(){
+  const {data}=await sb.from('messages').select('*').eq('listing_id',chatListingId).order('created_at',{ascending:true});
+  chatMessages=data||[];
+  renderChatMessages();
+}
+
+function renderChatMessages(){
+  const el=document.getElementById('chatMsgs');
+  if(!chatMessages.length){
+    el.innerHTML=`<div class="empty" style="padding:40px 20px;"><div class="empty-ico">💬</div><div class="empty-t">Start the conversation!</div><div class="empty-s">Send a message to the seller</div></div>`;
+    return;
+  }
+  el.innerHTML=chatMessages.map(m=>{
+    const isMe=m.sender_id===user?.id;
+    const time=new Date(m.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    return `<div class="bubble ${isMe?'me':'them'}">${m.content}<div class="bubble-time">${time}</div></div>`;
+  }).join('');
+  el.scrollTop=el.scrollHeight;
+}
+
+async function sendMsg(){
+  const input=document.getElementById('chatInput');
+  const txt=input.value.trim();
+  if(!txt||!user||!chatListingId)return;
+  input.value='';
+  const receiverId=currentListing.user_id===user.id?null:currentListing.user_id;
+  await sb.from('messages').insert({listing_id:chatListingId,sender_id:user.id,receiver_id:receiverId,content:txt});
+}
+
+// ══════════════════════════════════════════
+// MESSAGES LIST
+// ══════════════════════════════════════════
+async function showMessagesPage(){
+  showPage('messagesPage');
+  if(!user){document.getElementById('messagesContent').innerHTML='<div class="empty"><div class="empty-ico">💬</div><div class="empty-t">Login to see messages</div></div>';return;}
+  document.getElementById('messagesContent').innerHTML='<div class="loading"><div class="spinner"></div></div>';
+  const {data}=await sb.from('messages').select('*, listings(title,emoji,category)').or('sender_id.eq.'+user.id+',receiver_id.eq.'+user.id).order('created_at',{ascending:false});
+  if(!data||!data.length){document.getElementById('messagesContent').innerHTML='<div class="empty"><div class="empty-ico">💬</div><div class="empty-t">No messages yet</div><div class="empty-s">Start chatting by tapping a listing</div></div>';return;}
+  // Group by listing
+  const seen=new Set();
+  const unique=data.filter(m=>{if(seen.has(m.listing_id))return false;seen.add(m.listing_id);return true;});
+  document.getElementById('messagesContent').innerHTML=unique.map(m=>{
+    const isMe=m.sender_id===user.id;
+    const unread=!m.read&&m.receiver_id===user.id;
+    const listing=m.listings;
+    return `<div class="msg-row" onclick="openChatFromMsg('${m.listing_id}')">
+      <div class="msg-av">${listing?.emoji||getCatIcon(listing?.category)||'📦'}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="color:#F5F2EB;font-weight:700;font-size:13px;margin-bottom:2px;">${listing?.title||'Listing'}</div>
+        <div style="color:#9BA4B5;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${isMe?'You: ':''}${m.content}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;">
+        <span style="color:#9BA4B5;font-size:11px;">${new Date(m.created_at).toLocaleDateString()}</span>
+        ${unread?'<div class="msg-unread"></div>':''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function openChatFromMsg(listingId){
+  const listing=allListings.find(l=>l.id===listingId);
+  if(listing){currentListing=listing;openChat();return;}
+  const {data}=await sb.from('listings').select('*,profiles(name)').eq('id',listingId).single();
+  if(data){currentListing=data;openChat();}
+}
+
+// ══════════════════════════════════════════
+// MY LISTINGS
+// ══════════════════════════════════════════
+async function showMyListings(){
+  showPage('myListingsPage');
+  if(!user){document.getElementById('myListingsContent').innerHTML='<div class="empty"><div class="empty-ico">🗂️</div><div class="empty-t">Login to see your listings</div></div>';return;}
+  document.getElementById('myListingsContent').innerHTML='<div class="loading"><div class="spinner"></div></div>';
+  const {data}=await sb.from('listings').select('*').eq('user_id',user.id).order('created_at',{ascending:false});
+  if(!data||!data.length){
+    document.getElementById('myListingsContent').innerHTML=`<div class="empty"><div class="empty-ico">📭</div><div class="empty-t">No listings yet</div><div class="empty-s">Tap + to post your first listing!</div></div><button class="btn-gold" style="margin-top:20px" onclick="openPostAd()">+ Post Now</button>`;
+    return;
+  }
+  document.getElementById('myListingsContent').innerHTML=`<div class="grid2">${data.map(l=>`<div class="card" onclick="openDetail('${l.id}')"><div class="card-img"><span>${l.emoji||getCatIcon(l.category)}</span></div><div class="card-body"><div class="card-title">${l.title}</div><div class="card-price">${fmtPrice(l.price)}</div><div style="display:inline-block;background:rgba(61,184,122,0.12);color:#3DB87A;font-size:10px;padding:2px 8px;border-radius:20px;">● Active</div></div></div>`).join('')}</div>`;
+}
+
+// ══════════════════════════════════════════
+// POST AD
+// ══════════════════════════════════════════
+function openPostAd(){
+  if(!user){openAuth();toast('⚠️ Please login to post an ad');return;}
+  postCat='';postCond='new';postCity='';postPhotos=[];
+  goStep(1);
+  document.getElementById('postOverlay').classList.add('show');
+}
+
+function goStep(n){
+  [1,2,3,4].forEach(i=>{
+    document.getElementById('postS'+i).style.display=i===n?'block':'none';
+  });
+  const steps=document.querySelectorAll('#stepBar .step');
+  steps.forEach((s,i)=>s.classList.toggle('done',i<n));
+  const lbls=['','Category','Details','Price & City','Photos'];
+  document.getElementById('stepLbl').textContent='Step '+n+': '+lbls[n];
+}
+
+function renderPostCats(){
+  document.getElementById('postCatGrid').innerHTML=CATS.map(c=>`<div class="cat-item" style="background:${c.bg};${postCat===c.key?'border:2px solid #C9A84C;':''}" onclick="selPostCat('${c.key}',this)"><span class="cat-icon">${c.icon}</span><span class="cat-lbl">${c[lang]||c.en}</span></div>`).join('');
+}
+
+function selPostCat(cat){
+  postCat=cat;
+  goStep(2);
+}
+
+function selCond(cond,btn){
+  postCond=cond;
+  document.querySelectorAll('.cond-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function renderPostCities(){
+  document.getElementById('postCityGrid').innerHTML=CITIES.map(c=>`<button class="city-btn ${postCity===c.key?'active':''}" onclick="selCity('${c.key}',this)">📍 ${c[lang]||c.en}</button>`).join('');
+}
+
+function selCity(key,btn){
+  postCity=key;
+  document.querySelectorAll('.city-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function addPhoto(){document.getElementById('photoInput').click();}
+
+function handlePhotos(input){
+  const files=Array.from(input.files).slice(0,6-postPhotos.length);
+  files.forEach(file=>{
+    const reader=new FileReader();
+    reader.onload=e=>{postPhotos.push({file,url:e.target.result});renderPhotoGrid();};
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderPhotoGrid(){
+  const grid=document.getElementById('photoGrid');
+  let html=postPhotos.map((p,i)=>`<div class="photo-slot filled"><img src="${p.url}"><button class="rm" onclick="removePhoto(${i})">✕</button></div>`).join('');
+  if(postPhotos.length<6)html+=`<div class="photo-slot" onclick="addPhoto()">📷<span style="font-size:10px;color:#C9A84C;margin-top:4px;">Add</span></div>`;
+  grid.innerHTML=html;
+}
+
+function removePhoto(i){postPhotos.splice(i,1);renderPhotoGrid();}
+
+async function submitListing(){
+  const title=document.getElementById('pTitle').value.trim();
+  const desc=document.getElementById('pDesc').value.trim();
+  const price=parseInt(document.getElementById('pPrice').value);
+  if(!title){showErr('postErr','Please enter a title');return;}
+  if(!desc){showErr('postErr','Please add a description');return;}
+  if(!price||price<1000){showErr('postErr','Please enter a valid price');return;}
+  if(!postCity){showErr('postErr','Please select a city');return;}
+  hideErr('postErr');
+  setBtn('publishBtn','Publishing...',true);
+  const emojis={cars:'🚗',phones:'📱',electronics:'💻',fashion:'👔',realEstate:'🏠',motorcycles:'🏍️',spareParts:'⚙️'};
+  const {data,error}=await sb.from('listings').insert({user_id:user.id,title,description:desc,price,category:postCat,condition:postCond,city:postCity,emoji:emojis[postCat]||'📦',active:true}).select().single();
+  setBtn('publishBtn','🚀 Publish Listing',false);
+  if(error){showErr('postErr',error.message);return;}
+  closeOverlay('postOverlay');
+  toast('🎉 Listing published!');
+  await fetchListings();
+  loadMyListingsCount();
+}
+
+// ══════════════════════════════════════════
+// NOTIFICATIONS (demo)
+// ══════════════════════════════════════════
+function renderNotifs(){
+  const notifs=[
+    {icon:'💬',title:'New Message',desc:'Someone asked about your listing',time:'2 min ago',unread:true},
+    {icon:'✅',title:'Listing Live',desc:'Your listing is now visible to buyers',time:'1h ago',unread:true},
+    {icon:'❤️',title:'Saved',desc:'3 people saved your listing',time:'3h ago',unread:false},
+    {icon:'🏷️',title:'Price Drop Alert',desc:'A listing you saved dropped in price',time:'5h ago',unread:false},
+  ];
+  document.getElementById('notifContent').innerHTML=notifs.map(n=>`<div style="padding:14px 4px;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;gap:12px;align-items:flex-start;background:${n.unread?'rgba(201,168,76,0.04)':'none'}"><span style="font-size:22px;flex-shrink:0;">${n.icon}</span><div style="flex:1;"><div style="color:#F5F2EB;font-size:13px;font-weight:700;margin-bottom:3px;">${n.title}</div><div style="color:#9BA4B5;font-size:12px;line-height:1.4;">${n.desc}</div><div style="color:#9BA4B5;font-size:11px;margin-top:3px;">${n.time}</div></div>${n.unread?'<div style="width:8px;height:8px;background:#C9A84C;border-radius:50%;flex-shrink:0;margin-top:4px;"></div>':''}</div>`).join('');
+}
+
+// ══════════════════════════════════════════
+// FAQ
+// ══════════════════════════════════════════
+function renderFAQ(){
+  const faqs=[
+    {q:'How do I post a listing?',a:'Tap the + button. You need to be logged in. Fill in title, description, price, city and photos.'},
+    {q:'Is posting free?',a:'Yes! Basic listings are completely free. Premium featured listings coming soon.'},
+    {q:'How do I chat with a seller?',a:'Open any listing and tap "Chat Now". You must be logged in to send messages.'},
+    {q:'I didn\'t receive a confirmation email',a:'Check your spam folder. Or try registering again with a different email. Gmail works best.'},
+    {q:'How do I delete my listing?',a:'Go to Profile → My Listings → open the listing → delete option coming soon.'},
+    {q:'Which cities are supported?',a:'Erbil, Sulaymaniyah, Duhok, Kirkuk, Baghdad and Zakho. More cities coming!'},
+    {q:'Contact us',a:'Email: support@bazira.app — We respond within 24 hours.'},
+  ];
+  document.getElementById('faqContent').innerHTML=faqs.map((f,i)=>`<div onclick="this.querySelector('.faq-a').style.display=this.querySelector('.faq-a').style.display==='block'?'none':'block';this.querySelector('.faq-ico').textContent=this.querySelector('.faq-a').style.display==='block'?'−':'+';" style="background:#0E2040;border-radius:12px;margin-bottom:10px;overflow:hidden;border:1px solid rgba(255,255,255,0.07);cursor:pointer;"><div style="padding:14px 16px;display:flex;justify-content:space-between;align-items:center;"><span style="color:#F5F2EB;font-size:13px;font-weight:600;flex:1;line-height:1.4;">${f.q}</span><span class="faq-ico" style="color:#C9A84C;font-size:18px;margin-left:10px;">+</span></div><div class="faq-a" style="display:none;padding:0 16px 14px;"><div style="color:#9BA4B5;font-size:13px;line-height:1.6;border-top:1px solid rgba(255,255,255,0.06);padding-top:10px;">${f.a}</div></div></div>`).join('');
+}
+
+// ══════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════
+function showPage(id){
+  document.getElementById(id).classList.add('show');
+  if(id==='notifPage')renderNotifs();
+  if(id==='faqPage')renderFAQ();
+  if(id==='messagesPage')showMessagesPage();
+}
+function hidePage(id){document.getElementById(id).classList.remove('show');}
+function closeAllPages(){['detailPage','chatPage','profilePage','myListingsPage','messagesPage','notifPage','faqPage','settingsPage'].forEach(id=>hidePage(id));}
+
+function showHome(){closeAllPages();['nb-home','nb-search','nb-msgs','nb-profile'].forEach(id=>{document.getElementById(id)?.classList.remove('active');});document.getElementById('nb-home').classList.add('active');}
+function focusSearch(){document.getElementById('searchIn').focus();document.getElementById('nb-search').classList.add('active');}
+function openMessages(){if(!user){openAuth();return;}showMessagesPage();}
+function openProfileNav(){if(!user){openAuth();return;}showPage('profilePage');}
+function showProfile(){showPage('profilePage');}
+
+function onSearch(){
+  const q=document.getElementById('searchIn').value;
+  document.getElementById('clearBtn').style.display=q?'block':'none';
+  renderListings();
+}
+function clearSearch(){document.getElementById('searchIn').value='';document.getElementById('clearBtn').style.display='none';renderListings();}
+
+// ══════════════════════════════════════════
+// POST AD INIT
+// ══════════════════════════════════════════
+function initPostUI(){
+  renderPostCats();
+  renderPostCities();
+}
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+async function init(){
+  renderCatGrid();
+  renderPills();
+  renderFAQ();
+  initPostUI();
+  await fetchListings();
+  await fetchUserCount();
+  // Check current session
+  const {data:{session}}=await sb.auth.getSession();
+  if(session){user=session.user;updateAuthUI();}
+}
+init();
 </script>
 </body>
 </html>
