@@ -637,14 +637,12 @@ function openDetail(idx){
 function openDetailById(id){
   const idx=allListings.findIndex(x=>x.id===id);
   if(idx>=0){
-    hidePage('myListingsPage');
     openDetail(idx);
   } else {
     toast('Loading...');
     sb.from('listings').select('*,profiles(name)').eq('id',id).single().then(({data})=>{
       if(data){
         allListings.push(data);
-        hidePage('myListingsPage');
         openDetail(allListings.length-1);
       }
     });
