@@ -600,7 +600,8 @@ function setCat(cat){currentCat=cat;renderPills();renderListings();}
 
 function openDetail(idx){
   try {
-    const l=allListings[idx];if(!l)return;
+    const l=allListings[idx];
+    if(!l){toast('Listing not found');return;}
     currentListing=l;
     const heroImg=document.getElementById('detHeroImg');
     const heroEmoji=document.getElementById('detEmoji');
@@ -632,6 +633,11 @@ function openDetail(idx){
     console.error('openDetail error:',e);
     toast('Error opening listing');
   }
+}
+function openDetailById(id){
+  const idx=allListings.findIndex(x=>x.id===id);
+  if(idx>=0){openDetail(idx);}
+  else{toast('Loading...');sb.from('listings').select('*,profiles(name)').eq('id',id).single().then(({data})=>{if(data){allListings.push(data);openDetail(allListings.length-1);}});}
 }
 function switchHeroImg(src,el){
   document.getElementById('detHeroImg').src=src;
@@ -707,6 +713,7 @@ async function showMyListings(){
     document.getElementById('myListingsContent').innerHTML='<div class="empty"><div class="empty-ico">📭</div><div class="empty-t">No listings yet</div><div class="empty-s">Tap + to post your first listing!</div></div><button class="btn-gold" style="margin-top:20px" onclick="openPostAd()">Post Now</button>';
     return;
   }
+  // Store listings in global map for direct ID lookup
   data.forEach(l=>{
     const idx=allListings.findIndex(x=>x.id===l.id);
     if(idx>=0)allListings[idx]=l;
@@ -714,8 +721,7 @@ async function showMyListings(){
   });
   const html=data.map(l=>{
     const hasImg=l.images&&l.images.length>0;
-    const idx=allListings.findIndex(x=>x.id===l.id);
-    return '<button onclick="openDetail('+idx+')" style="display:block;width:100%;background:linear-gradient(145deg,#0E2040,#0A1628);border:1px solid rgba(201,168,76,0.15);border-radius:16px;overflow:hidden;cursor:pointer;text-align:left;padding:0;">'
+    return '<button onclick="openDetailById(\''+l.id+'\')" style="display:block;width:100%;background:linear-gradient(145deg,#0E2040,#0A1628);border:1px solid rgba(201,168,76,0.15);border-radius:16px;overflow:hidden;cursor:pointer;text-align:left;padding:0;">'
       +'<div style="height:130px;background:linear-gradient(135deg,#0a1628,#162B52);display:flex;align-items:center;justify-content:center;font-size:56px;position:relative;overflow:hidden;">'
       +(hasImg?'<img src="'+l.images[0]+'" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;">':'<span>'+getCatIcon(l.category)+'</span>')
       +'</div>'
