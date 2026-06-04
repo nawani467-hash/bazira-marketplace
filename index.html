@@ -707,7 +707,6 @@ async function showMyListings(){
     document.getElementById('myListingsContent').innerHTML='<div class="empty"><div class="empty-ico">📭</div><div class="empty-t">No listings yet</div><div class="empty-s">Tap + to post your first listing!</div></div><button class="btn-gold" style="margin-top:20px" onclick="openPostAd()">Post Now</button>';
     return;
   }
-  // Store my listings in allListings cache
   data.forEach(l=>{
     const idx=allListings.findIndex(x=>x.id===l.id);
     if(idx>=0)allListings[idx]=l;
@@ -716,17 +715,17 @@ async function showMyListings(){
   const html=data.map(l=>{
     const hasImg=l.images&&l.images.length>0;
     const idx=allListings.findIndex(x=>x.id===l.id);
-    return '<div class="card" onclick="openDetail('+idx+')" style="cursor:pointer;user-select:none;">'
-      +'<div class="card-img" style="pointer-events:none;">'
-      +(hasImg?'<img src="'+l.images[0]+'" loading="lazy" style="pointer-events:none;">':'<span class="card-emoji" style="pointer-events:none;">'+getCatIcon(l.category)+'</span>')
+    return '<button onclick="openDetail('+idx+')" style="display:block;width:100%;background:linear-gradient(145deg,#0E2040,#0A1628);border:1px solid rgba(201,168,76,0.15);border-radius:16px;overflow:hidden;cursor:pointer;text-align:left;padding:0;">'
+      +'<div style="height:130px;background:linear-gradient(135deg,#0a1628,#162B52);display:flex;align-items:center;justify-content:center;font-size:56px;position:relative;overflow:hidden;">'
+      +(hasImg?'<img src="'+l.images[0]+'" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;">':'<span>'+getCatIcon(l.category)+'</span>')
       +'</div>'
-      +'<div class="card-body" style="pointer-events:none;">'
-      +'<div class="card-title">'+l.title+'</div>'
-      +'<div class="card-price">'+fmtPrice(l.price)+'</div>'
+      +'<div style="padding:10px 12px 12px;">'
+      +'<div style="color:#F5F2EB;font-size:11px;font-weight:700;margin-bottom:4px;">'+l.title+'</div>'
+      +'<div style="color:#C9A84C;font-size:15px;font-weight:900;margin-bottom:6px;">'+fmtPrice(l.price)+'</div>'
       +'<div style="display:inline-block;background:rgba(61,184,122,0.12);color:#3DB87A;font-size:10px;padding:2px 8px;border-radius:20px;">● Active</div>'
-      +'</div></div>';
+      +'</div></button>';
   }).join('');
-  document.getElementById('myListingsContent').innerHTML='<div class="grid2">'+html+'</div>';
+  document.getElementById('myListingsContent').innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 0 100px;">'+html+'</div>';
 }
 async function openDetailFromMyList(id){
   try {
