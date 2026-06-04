@@ -636,8 +636,19 @@ function openDetail(idx){
 }
 function openDetailById(id){
   const idx=allListings.findIndex(x=>x.id===id);
-  if(idx>=0){openDetail(idx);}
-  else{toast('Loading...');sb.from('listings').select('*,profiles(name)').eq('id',id).single().then(({data})=>{if(data){allListings.push(data);openDetail(allListings.length-1);}});}
+  if(idx>=0){
+    hidePage('myListingsPage');
+    openDetail(idx);
+  } else {
+    toast('Loading...');
+    sb.from('listings').select('*,profiles(name)').eq('id',id).single().then(({data})=>{
+      if(data){
+        allListings.push(data);
+        hidePage('myListingsPage');
+        openDetail(allListings.length-1);
+      }
+    });
+  }
 }
 function switchHeroImg(src,el){
   document.getElementById('detHeroImg').src=src;
@@ -890,11 +901,12 @@ function clearSearch(){document.getElementById('searchIn').value='';document.get
 function initPostUI(){renderPostCats();renderPostCities();}
 
 async function init(){
+  // First get session so user is set before anything else
+  const {data:{session}}=await sb.auth.getSession();
+  if(session){user=session.user;updateAuthUI();}
   renderCatGrid();renderPills();renderFAQ();initPostUI();
   await fetchListings();
   await fetchUserCount();
-  const {data:{session}}=await sb.auth.getSession();
-  if(session){user=session.user;updateAuthUI();}
 }
 init();
 </script>
