@@ -417,7 +417,7 @@ body{background:#060E1C;color:#F5F2EB;font-family:'Segoe UI',sans-serif;overflow
 
 <script>
 const SUPA_URL='https://biuaumpizcdpzupsdpcv.supabase.co';
-const SUPA_KEY='sb_publishable_9gOVmP0mLjapyyBXL5mlIg_6qB5EEqC';
+const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJpdWF1bXBpemNkcHp1cHNkcGN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0MzU3NjUsImV4cCI6MjA5NjAxMTc2NX0.vKctcdMhpfA18_FLuiTL5QC0zYN01OevJ8QQtMeL2BU';
 const sb=supabase.createClient(SUPA_URL,SUPA_KEY);
 const CATS=[
   {key:'cars',en:'Cars',ku:'ئۆتۆمبێل',ar:'سيارات',icon:'Car',bg:'#1e3a5f'},
@@ -700,17 +700,33 @@ async function openChatFromMsg(listingId){
 
 async function showMyListings(){
   showPage('myListingsPage');
-  if(!user){document.getElementById('myListingsContent').innerHTML='<div class="empty"><div class="empty-ico">List</div><div class="empty-t">Login to see your listings</div></div>';return;}
+  if(!user){document.getElementById('myListingsContent').innerHTML='<div class="empty"><div class="empty-ico">📭</div><div class="empty-t">Login to see your listings</div></div>';return;}
   document.getElementById('myListingsContent').innerHTML='<div class="loading"><div class="spinner"></div></div>';
-  const {data}=await sb.from('listings').select('*').eq('user_id',user.id).order('created_at',{ascending:false});
-  if(!data||!data.length){
+  const {data,error}=await sb.from('listings').select('*,profiles(name)').eq('user_id',user.id).order('created_at',{ascending:false});
+  if(error||!data||!data.length){
     document.getElementById('myListingsContent').innerHTML='<div class="empty"><div class="empty-ico">📭</div><div class="empty-t">No listings yet</div><div class="empty-s">Tap + to post your first listing!</div></div><button class="btn-gold" style="margin-top:20px" onclick="openPostAd()">Post Now</button>';
     return;
   }
-  document.getElementById('myListingsContent').innerHTML='<div class="grid2">'+data.map(l=>{
+  // Store my listings in allListings cache
+  data.forEach(l=>{
+    const idx=allListings.findIndex(x=>x.id===l.id);
+    if(idx>=0)allListings[idx]=l;
+    else allListings.push(l);
+  });
+  const html=data.map(l=>{
     const hasImg=l.images&&l.images.length>0;
-    return '<div class="card" onclick="openDetailFromMyList(\''+l.id+'\')" style="cursor:pointer;"><div class="card-img" style="pointer-events:none;">'+(hasImg?'<img src="'+l.images[0]+'" loading="lazy" style="pointer-events:none;">':'<span class="card-emoji" style="pointer-events:none;">'+getCatIcon(l.category)+'</span>')+'</div><div class="card-body" style="pointer-events:none;"><div class="card-title">'+l.title+'</div><div class="card-price">'+fmtPrice(l.price)+'</div><div style="display:inline-block;background:rgba(61,184,122,0.12);color:#3DB87A;font-size:10px;padding:2px 8px;border-radius:20px;">● Active</div></div></div>';
-  }).join('')+'</div>';
+    const idx=allListings.findIndex(x=>x.id===l.id);
+    return '<div class="card" onclick="openDetail('+idx+')" style="cursor:pointer;user-select:none;">'
+      +'<div class="card-img" style="pointer-events:none;">'
+      +(hasImg?'<img src="'+l.images[0]+'" loading="lazy" style="pointer-events:none;">':'<span class="card-emoji" style="pointer-events:none;">'+getCatIcon(l.category)+'</span>')
+      +'</div>'
+      +'<div class="card-body" style="pointer-events:none;">'
+      +'<div class="card-title">'+l.title+'</div>'
+      +'<div class="card-price">'+fmtPrice(l.price)+'</div>'
+      +'<div style="display:inline-block;background:rgba(61,184,122,0.12);color:#3DB87A;font-size:10px;padding:2px 8px;border-radius:20px;">● Active</div>'
+      +'</div></div>';
+  }).join('');
+  document.getElementById('myListingsContent').innerHTML='<div class="grid2">'+html+'</div>';
 }
 async function openDetailFromMyList(id){
   try {
