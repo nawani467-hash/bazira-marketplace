@@ -73,11 +73,11 @@ body{background:#060E1C;color:#F5F2EB;font-family:'Segoe UI',sans-serif;overflow
 .feat-scroll{display:flex;gap:12px;overflow-x:auto;padding:0 16px 8px;scrollbar-width:none;}
 .feat-scroll::-webkit-scrollbar{display:none;}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 16px 100px;}
-.card{background:linear-gradient(145deg,#0E2040,#0A1628);border:1px solid rgba(201,168,76,0.15);border-radius:16px;overflow:hidden;cursor:pointer;transition:transform 0.2s;}
+.card{background:linear-gradient(145deg,#0E2040,#0A1628);border:1px solid rgba(201,168,76,0.15);border-radius:16px;overflow:hidden;cursor:pointer;transition:transform 0.2s;-webkit-tap-highlight-color:rgba(201,168,76,0.1);position:relative;}
 .card:hover{transform:translateY(-2px);}
-.card-img{height:130px;background:linear-gradient(135deg,#0a1628,#162B52);display:flex;align-items:center;justify-content:center;font-size:56px;position:relative;overflow:hidden;}
-.card-img img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;}
-.card-img .card-emoji{position:relative;z-index:1;}
+.card-img{height:130px;background:linear-gradient(135deg,#0a1628,#162B52);display:flex;align-items:center;justify-content:center;font-size:56px;position:relative;overflow:hidden;pointer-events:none;}
+.card-img img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;pointer-events:none;}
+.card-img .card-emoji{position:relative;z-index:1;pointer-events:none;}
 .badge-f{position:absolute;top:8px;left:8px;background:linear-gradient(90deg,#C9A84C,#E4C46B);color:#060E1C;font-size:9px;font-weight:800;padding:2px 7px;border-radius:20px;z-index:2;}
 .badge-v{position:absolute;top:8px;right:8px;background:rgba(61,184,122,0.2);border:1px solid #3DB87A;color:#3DB87A;font-size:9px;padding:2px 7px;border-radius:20px;z-index:2;}
 .card-body{padding:10px 12px 12px;}
@@ -585,7 +585,7 @@ function cardHTML(l){
   const condCls=l.condition==='new'?'new':l.condition==='damaged'?'damaged':'';
   const idx=allListings.findIndex(x=>x.id===l.id);
   const hasImg=l.images&&l.images.length>0;
-  return '<div class="card" onclick="openDetail('+idx+')"><div class="card-img">'+(hasImg?'<img src="'+l.images[0]+'" alt="'+l.title+'" loading="lazy">':'')+(l.featured?'<span class="badge-f">FEATURED</span>':'')+(l.verified?'<span class="badge-v">V</span>':'')+(hasImg?'':'<span class="card-emoji">'+getCatIcon(l.category)+'</span>')+'</div><div class="card-body"><div class="card-title">'+l.title+'</div><div class="card-price">'+fmtPrice(l.price)+'</div><div class="card-tags"><span class="tag '+condCls+'">'+cond+'</span></div><div class="card-city">'+getCityName(l.city)+'</div></div></div>';
+  return '<div class="card" onclick="openDetail('+idx+')" style="cursor:pointer;"><div class="card-img" style="pointer-events:none;">'+(hasImg?'<img src="'+l.images[0]+'" alt="" loading="lazy" style="pointer-events:none;">':'')+(l.featured?'<span class="badge-f" style="pointer-events:none;">FEATURED</span>':'')+(l.verified?'<span class="badge-v" style="pointer-events:none;">✓</span>':'')+(hasImg?'':'<span class="card-emoji" style="pointer-events:none;">'+getCatIcon(l.category)+'</span>')+'</div><div class="card-body" style="pointer-events:none;"><div class="card-title">'+l.title+'</div><div class="card-price">'+fmtPrice(l.price)+'</div><div class="card-tags"><span class="tag '+condCls+'">'+cond+'</span></div><div class="card-city">📍 '+getCityName(l.city)+'</div></div></div>';
 }
 
 function renderCatGrid(){
@@ -599,34 +599,39 @@ function renderPills(){
 function setCat(cat){currentCat=cat;renderPills();renderListings();}
 
 function openDetail(idx){
-  const l=allListings[idx];if(!l)return;
-  currentListing=l;
-  const heroImg=document.getElementById('detHeroImg');
-  const heroEmoji=document.getElementById('detEmoji');
-  if(l.images&&l.images.length>0){
-    heroImg.src=l.images[0];heroImg.style.display='block';heroEmoji.style.display='none';
-  } else {
-    heroImg.style.display='none';heroImg.src='';
-    heroEmoji.style.display='block';heroEmoji.textContent=l.emoji||getCatIcon(l.category);
+  try {
+    const l=allListings[idx];if(!l)return;
+    currentListing=l;
+    const heroImg=document.getElementById('detHeroImg');
+    const heroEmoji=document.getElementById('detEmoji');
+    if(l.images&&l.images.length>0){
+      heroImg.src=l.images[0];heroImg.style.display='block';heroEmoji.style.display='none';
+    } else {
+      heroImg.style.display='none';heroImg.src='';
+      heroEmoji.style.display='block';heroEmoji.textContent=l.emoji||getCatIcon(l.category);
+    }
+    const gallery=document.getElementById('detGallery');
+    if(l.images&&l.images.length>1){
+      gallery.style.display='flex';
+      gallery.innerHTML=l.images.map((img,i)=>'<img src="'+img+'" class="'+(i===0?'active':'')+'" onclick="switchHeroImg(\''+img+'\',this)">').join('');
+    } else {
+      gallery.style.display='none';gallery.innerHTML='';
+    }
+    document.getElementById('detFeat').style.display=l.featured?'block':'none';
+    document.getElementById('detTitle').textContent=l.title;
+    document.getElementById('detPrice').textContent=fmtPrice(l.price);
+    document.getElementById('detCity').textContent='📍 '+getCityName(l.city);
+    document.getElementById('detDesc').textContent=l.description||'No description provided.';
+    const cond=l.condition==='new'?t('new'):l.condition==='damaged'?t('damaged'):t('used');
+    document.getElementById('detTags').innerHTML='<span class="tag '+(l.condition==='new'?'new':l.condition==='damaged'?'damaged':'')+'">'+cond+'</span>';
+    const sName=l.profiles?.name||'Seller';
+    document.getElementById('detSellerName').textContent=sName;
+    document.getElementById('detSellerAv').textContent=sName.charAt(0).toUpperCase();
+    showPage('detailPage');
+  } catch(e){
+    console.error('openDetail error:',e);
+    toast('Error opening listing');
   }
-  const gallery=document.getElementById('detGallery');
-  if(l.images&&l.images.length>1){
-    gallery.style.display='flex';
-    gallery.innerHTML=l.images.map((img,i)=>'<img src="'+img+'" class="'+(i===0?'active':'')+'" onclick="switchHeroImg(\''+img+'\',this)">').join('');
-  } else {
-    gallery.style.display='none';gallery.innerHTML='';
-  }
-  document.getElementById('detFeat').style.display=l.featured?'block':'none';
-  document.getElementById('detTitle').textContent=l.title;
-  document.getElementById('detPrice').textContent=fmtPrice(l.price);
-  document.getElementById('detCity').textContent=getCityName(l.city);
-  document.getElementById('detDesc').textContent=l.description||'No description provided.';
-  const cond=l.condition==='new'?t('new'):l.condition==='damaged'?t('damaged'):t('used');
-  document.getElementById('detTags').innerHTML='<span class="tag '+(l.condition==='new'?'new':l.condition==='damaged'?'damaged':'')+'">'+cond+'</span>';
-  const sName=l.profiles?.name||'Seller';
-  document.getElementById('detSellerName').textContent=sName;
-  document.getElementById('detSellerAv').textContent=sName.charAt(0).toUpperCase();
-  showPage('detailPage');
 }
 function switchHeroImg(src,el){
   document.getElementById('detHeroImg').src=src;
@@ -704,14 +709,21 @@ async function showMyListings(){
   }
   document.getElementById('myListingsContent').innerHTML='<div class="grid2">'+data.map(l=>{
     const hasImg=l.images&&l.images.length>0;
-    return '<div class="card" onclick="openDetailFromMyList(\''+l.id+'\')"><div class="card-img">'+(hasImg?'<img src="'+l.images[0]+'" loading="lazy">':'<span class="card-emoji">'+getCatIcon(l.category)+'</span>')+'</div><div class="card-body"><div class="card-title">'+l.title+'</div><div class="card-price">'+fmtPrice(l.price)+'</div><div style="display:inline-block;background:rgba(61,184,122,0.12);color:#3DB87A;font-size:10px;padding:2px 8px;border-radius:20px;">Active</div></div></div>';
+    return '<div class="card" onclick="openDetailFromMyList(\''+l.id+'\')" style="cursor:pointer;"><div class="card-img" style="pointer-events:none;">'+(hasImg?'<img src="'+l.images[0]+'" loading="lazy" style="pointer-events:none;">':'<span class="card-emoji" style="pointer-events:none;">'+getCatIcon(l.category)+'</span>')+'</div><div class="card-body" style="pointer-events:none;"><div class="card-title">'+l.title+'</div><div class="card-price">'+fmtPrice(l.price)+'</div><div style="display:inline-block;background:rgba(61,184,122,0.12);color:#3DB87A;font-size:10px;padding:2px 8px;border-radius:20px;">● Active</div></div></div>';
   }).join('')+'</div>';
 }
 async function openDetailFromMyList(id){
-  const idx=allListings.findIndex(x=>x.id===id);
-  if(idx>=0){openDetail(idx);return;}
-  const {data}=await sb.from('listings').select('*,profiles(name)').eq('id',id).single();
-  if(data){allListings.push(data);openDetail(allListings.length-1);}
+  try {
+    const {data,error}=await sb.from('listings').select('*,profiles(name)').eq('id',id).single();
+    if(error)throw error;
+    if(!data){toast('Listing not found');return;}
+    const idx=allListings.findIndex(x=>x.id===id);
+    if(idx>=0){allListings[idx]=data;openDetail(idx);}
+    else{allListings.push(data);openDetail(allListings.length-1);}
+  } catch(e){
+    console.error('openDetailFromMyList error:',e);
+    toast('Error loading listing');
+  }
 }
 
 function openPostAd(){
